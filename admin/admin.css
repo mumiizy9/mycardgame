@@ -1,259 +1,356 @@
-/* admin.css */
+/* ------------ Card Game Admin Backoffice CSS ------------ */
+
 body {
-  background: #e9f6fa;
-  font-family: 'Kanit', sans-serif;
+  font-family: 'Kanit', Arial, sans-serif;
   margin: 0;
+  background: #f4f8fb;
+  color: #1e3348;
   min-height: 100vh;
-  color: #25395d;
 }
 
-/* ---------- LOGIN PAGE ---------- */
+/* -------- Login Page -------- */
+.admin-login-wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(125deg,#eaf6ff 40%,#f1e1ff 100%);
+}
+
 .login-box {
   background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 2px 16px #b6ccef;
-  padding: 2em 2.5em;
-  min-width: 340px;
-  max-width: 95vw;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px #b1bff9c7;
+  padding: 2.5em 2.1em 2em 2.1em;
+  min-width: 320px;
+  max-width: 97vw;
   text-align: center;
 }
-.login-icon {
-  font-size: 2.8em;
-  color: #2176b5;
-  margin-bottom: 10px;
-  display: block;
-}
-h2, .dash-panel-title, .dash-title { font-weight: 700; letter-spacing: 1px;}
-.login-box h2 { margin: 0 0 7px 0; color: #24678b;}
-.login-input-group {
-  margin: 1.4em 0 0.5em 0;
+
+.login-title {
+  font-size: 1.45em;
+  font-weight: bold;
+  color: #2f3586;
   display: flex;
-  flex-direction: column;
-  gap: 13px;
+  align-items: center;
+  margin-bottom: 1.6em;
+  justify-content: center;
+  gap: 0.5em;
+  letter-spacing: 1px;
 }
-.login-input-group label {
+
+.login-icon {
+  font-size: 2.25em;
+  margin-right: 0.14em;
+}
+
+.login-field {
   text-align: left;
-  color: #4f6d87;
-  font-size: 1.08em;
-  margin-bottom: 2px;
+  margin-bottom: 1.1em;
 }
-.login-input-group input {
-  padding: 8px 14px;
-  font-size: 1.11em;
-  border: 1.5px solid #b3d2e1;
+
+.login-field label {
+  display: block;
+  font-size: 1em;
+  color: #3674c6;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.login-field input {
+  width: 100%;
+  border: 1.2px solid #a9c8ea;
   border-radius: 7px;
-  transition: border 0.16s;
+  padding: 8px 14px;
+  font-size: 1.07em;
+  background: #f9fcff;
+  transition: border 0.13s, box-shadow 0.13s;
+}
+
+.login-field input:focus {
+  border: 1.7px solid #408aee;
+  box-shadow: 0 2px 13px #94d3ff34;
   outline: none;
 }
-.login-input-group input:focus { border: 1.8px solid #2383e2; }
+
 .login-btn {
-  margin-top: 1.3em;
-  background: #2383e2;
+  margin-top: 0.8em;
+  background: linear-gradient(98deg,#1979e0 60%,#23c048 120%);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-size: 1.22em;
+  font-weight: bold;
+  box-shadow: 0 3px 10px #61d6fa31;
+  padding: 12px 1.8em 12px 1.7em;
+  cursor: pointer;
+  letter-spacing: .3px;
+  transition: background .16s;
+}
+.login-btn:hover { background: #38a366 linear-gradient(90deg, #2597e3, #3fe88b 94%); }
+
+.login-error {
+  font-size: 1.07em;
+  margin-top: 15px;
+  min-height: 1.1em;
+  height: 1.1em;
+  color: #c21827;
+  font-weight: 500;
+}
+
+.login-footer {
+  margin-top: 30px;
+  color: #81a3bb;
+  font-size: .96em;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+@media (max-width: 420px) {
+  .login-box {min-width: 99vw; padding: 1.2em 0.4em;}
+}
+
+/* ------ Admin Shell Frame ------ */
+.admin-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-header {
+  background: linear-gradient(90deg, #377cfb 15%, #21a8b2 76%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+  padding: 16px 32px 15px 24px;
+  border-bottom: 2.5px solid #e9f3ff;
+  letter-spacing: .5px;
+}
+
+.admin-header-title {
+  font-size: 2em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 0.35em;
+  letter-spacing: 1.2px;
+  text-shadow: 0 4px 18px #2e3f7b23;
+}
+.admin-header-title::before {content:"";}
+
+.admin-logout-btn {
+  background: #e74444;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.03em;
+  border: 0;
+  border-radius: 6px;
+  padding: 7px 17px;
+  margin-left: 2.2em;
+  transition: background .14s;
+  cursor: pointer;
+  box-shadow: 0 2px 11px #e48a8a25;
+}
+.admin-logout-btn:hover {background: #b4292a;}
+
+#admin-user-info {
+  font-size: 1.12em;
+  color: #fff;
+  margin-left: 1.5em;
+}
+
+@media(max-width:620px){
+  .admin-header { flex-direction: column; align-items:flex-start; padding: 18px 6px 10px 9px; }
+  #admin-user-info, .admin-logout-btn { margin-left: 0; }
+  .admin-header-title {font-size:1.15em;}
+}
+
+/* ------- Tabs Nav ------- */
+.admin-nav-tab {
+  display: flex;
+  gap: 1.1em;
+  padding: 14px 26px;
+  background: #e7f2ff;
+  flex-wrap: wrap;
+  border-bottom: 1.5px solid #d8e7fd;
+  font-size: 1.05em;
+}
+
+.admin-nav-tab button {
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 1.05em;
+  padding: 9px 2em 10px 1.3em;
+  border-radius: 7px 7px 0 0;
+  color: #3674c6;
+  font-weight: 600;
+  letter-spacing: .2px;
+  cursor:pointer;
+  transition: background .16s, color .11s;
+  outline: none;
+}
+
+.admin-nav-tab button.active, .admin-nav-tab button:focus {
+  background: #f8fdff;
+  color: #14a978;
+  box-shadow: 0 -4px 16px #81e1ae28;
+}
+
+@media (max-width: 600px) {
+  .admin-nav-tab {padding:10px 3px;font-size:0.99em;}
+  .admin-nav-tab button { font-size:.97em; padding:5.5px 1.1em;}
+}
+
+/* ------ Admin Page Layout ------ */
+.admin-main {
+  flex:1;
+  background:#fbfcfe;
+  max-width: 1320px;
+  margin:auto;
+  padding: 23px 16px 40px 16px;
+  box-sizing: border-box;
+  min-height: 68vh;
+}
+
+.admin-pane {
+  display: none;
+  background:#fff;
+  border-radius: 18px;
+  box-shadow: 0 3px 20px #99cad210;
+  margin-bottom: 2.5em;
+  padding: 2.3em 2em 1.5em 2em;
+  animation: fadeIn .2s;
+}
+
+.admin-pane.visible {display: block;}
+
+.admin-pane > h2 {
+  margin-top: 0;
+  font-size: 1.4em;
+  color: #2067b2;
+  font-weight: bold;
+  letter-spacing: .8px;
+  display: flex; align-items: center; gap:.48em;
+  margin-bottom: 0.8em;
+}
+.admin-action {
+  display: flex; gap: 1.2em; align-items: center; margin-bottom: 25px;
+}
+
+.admin-add-btn,
+.admin-export-btn {
+  background: #277de8;
   color: #fff;
   border: 0;
   border-radius: 7px;
-  font-size: 1.18em;
+  padding: 9px 22px;
+  font-size: 1em;
   font-weight: bold;
-  padding: 0.6em 2em;
-  box-shadow: 0 4px 8px #a0cbfa60;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.login-btn:hover { background: #62b5e8; }
-.error-msg {
-  margin-top: 14px;
-  color: #d53238;
-  font-weight: 500;
-  font-size: 1.06em;
-  min-height: 1.2em;
-}
-.login-footer {
-  margin-top: 1.5em;
-  color: #8fa4b7;
-  font-size: 0.97em;
-  font-style: italic;
-}
-@media only screen and (max-width: 420px) {
-  .login-box { min-width: 98vw; padding:1em 0.3em }
-  .login-btn { width: 95vw; }
-}
-
-/* ---------- DASHBOARD ---------- */
-.dash-container { max-width:1400px; margin:auto; padding:2em 1em; }
-.dash-header {
-  display: flex; align-items:center; margin-bottom:1.5em;
-  border-bottom: 2px solid #cde5fc2b;
-  padding-bottom: 7px;
-}
-.dash-title {
-  font-size: 2.1em; font-weight: bold;
-  color: #24678b;
-  margin-right:1.2em;
-  letter-spacing: 1px;
-  display: flex; align-items: center;
-}
-.dash-title::before { content: "🛡️"; font-size: 1.15em; margin-right: 8px;}
-.dash-user { color: #6e7b96; font-size:1.02em; margin-left:auto; }
-.logout-btn {
-  background: #e32536; color: #fff; border: 0;
-  border-radius: 7px;
-  padding: 9px 18px; font-size: 1em;
-  font-weight: bold; cursor:pointer; margin-left:20px;
-  box-shadow:0 1px 7px #fcd6d6a0;
-  transition: background 0.13s;
-}
-.logout-btn:hover { background: #f96a63; }
-.dash-nav {
-  display:flex; gap:2em; margin-bottom: 1.5em; flex-wrap:wrap;
-  border-bottom: 1px solid #c8eaf7;
-}
-.dash-nav button {
-  background:#2f85fa; color:#fff; border:0;
-  border-radius:8px; padding:11px 22px;
-  font-size:1.12em; cursor:pointer; font-weight:600;
-  box-shadow:0 2px 10px #d1e7fb30;
-  transition: background 0.17s;
-}
-.dash-nav button.active, .dash-nav button:focus {
-  background: #16ca90;
-}
-.dash-section {
-  display:none;
-  background:#fff; border-radius:18px;
-  box-shadow:0 2px 16px #c0d8fc49;
-  padding:2em 2.4em 2em 2em; margin-bottom:2em;
-}
-.dash-section.active { display:block; animation:fadeIn 0.3s;}
-.dash-panel-title {
-  color:#1c5ca3; margin-bottom:1.1em;
-  font-size:1.38em; font-weight:bold; letter-spacing:1px;
-  display: flex; align-items:center;
-}
-.dash-panel-title::before {
-  content:"";
-  font-size:1.15em;
-  margin-right:7px;
-  display: inline-block;
-}
-#character-admin .dash-panel-title::before {content:"👤";}
-#gacha-admin .dash-panel-title::before {content:"🎲";}
-#equipment-admin .dash-panel-title::before {content:"⚔️";}
-#stages-admin .dash-panel-title::before {content:"🗺️";}
-#quests-admin .dash-panel-title::before {content:"🏆";}
-#shop-admin .dash-panel-title::before {content:"🛒";}
-#notify-admin .dash-panel-title::before {content:"📢";}
-
-.dash-footer {
-  text-align:center; padding:.8em 0;
-  color:#7b8ebd; font-size:0.97em;
-  border-top: 1px solid #e4f2fa;
-}
-
-/* ---- Table Styles ---- */
-.dash-table {overflow-x:auto;}
-table { border-collapse: collapse; width: 100%; margin: 20px 0;}
-th, td {
-  border:1px solid #d0d8e4;
-  padding:8px 13px; text-align:left;
-  font-size: 1.07em;
-}
-th {
-  background:#e6f2fe;
-  color: #265c8d;
-}
-tr td:first-child {font-weight:bold;}
-.dash-table input[type="text"],
-.dash-table input[type="number"],
-.dash-table select,
-.dash-table textarea {
-  font-family: inherit;
-  padding: 3px 9px;
-  border-radius: 5px;
-  border: 1px solid #abcdf3;
-  font-size:1em;
-  margin-bottom: 2px;
-  background: #fbfdff;
-}
-.dash-table textarea {
-  min-height: 72px;
-  max-width: 99%;
-  font-family: 'Fira Mono', monospace, 'Kanit', sans-serif;
-}
-
-.admin-edit-btn, .admin-del-btn, .admin-save-btn, .admin-cancel-btn {
-  padding:2px 15px;
-  border-radius:5px; border:0;
-  font-size:.97em; margin:0 2px; cursor:pointer;
-}
-.admin-edit-btn { background: #0682c2; color:#fff;}
-.admin-del-btn { background: #e93523; color:#fff;}
-.admin-save-btn { background: #14a15a; color:#fff;}
-.admin-cancel-btn { background: #ddd; color:#1d1d1d;}
-.admin-add-btn {
-  background: #377fe9;
-  color:#fff;
-  border:0;
-  padding:8px 19px;
-  border-radius:7px;
-  margin:12px 0;
   cursor:pointer;
-  font-size:1em;
+  box-shadow: 0 2px 12px #b2e7f332;
+  transition: background .13s;
 }
-.admin-add-btn:hover {background: #49a5f5;}
-/* visually support JSON textarea highlight (for stages) */
-.dash-table textarea { background: #f3f7ff; }
-
-/* ---------- Responsive ---------- */
-@media (max-width: 700px){
-  .dash-section {padding:1em .3em;}
-  .dash-container {padding:1em .2em;}
-  .dash-header .dash-title {font-size:1.36em;}
-  .dash-nav button {font-size:1em;padding:8px 10px;}
-  .admin-add-btn { padding:6px 10px;}
-  table, th, td { font-size: 0.97em; }
+.admin-add-btn:hover {background: #14a78e;}
+.admin-export-btn {background: #ffc003; color: #2b2420;}
+.admin-export-btn:hover {background: #ffe088;}
+/* Table styles */
+.admin-pane table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 23px;
 }
-
-/* ------ Admin notification and success ------ */
-input:disabled, select:disabled {
-  background: #f0f0fa;
-  color: #888;
+.admin-pane th, .admin-pane td {
+  border:1px solid #e7e9ef;
+  padding: 9px 10px;
+  font-size: 1.01em;
+  background: none;
 }
-
-::-webkit-scrollbar-thumb { background: #d7e3ff; border-radius: 8px; }
-::-webkit-scrollbar-track { background: #f0f3fc; }
-::-webkit-scrollbar { width: 9px; }
-
-.success-msg {
-  color: #23c574;
-  font-size: 1.05em;
-  font-weight: bold;
-  margin: 15px 0 10px 0;
-  display: block;
+.admin-pane th {
+  background: #e4f1fd;
+  color: #234864;
 }
-.error-msg {
-  color: #e23b3b;
-  font-weight:bold;
-  padding: 4px 0;
-}
-
-/* --- Icon as label style for better accessibility --- */
-th::before, td::before {
-  font-size: 1.13em;
-  margin-right: 3px;
-}
-
-/* --- Misc --- */
-button:focus { outline: 2px solid #256db1; }
-input:focus, textarea:focus, select:focus { outline: 2px solid #12b3e5;}
-
-/* override for textarea (not too high by default) */
-.dash-table textarea {min-height:54px;}
-
-/* Download/Export button (future) */
-.admin-export-btn {
-  background: #f6b300;
-  color:#fff; border: 0; border-radius:6px;
-  padding:5px 13px; margin-left:7px; cursor:pointer;
+.admin-pane td:first-child {font-weight:bold;}
+.input-text, input[type="number"], select, textarea {
+  font-family: inherit;
+  padding: 4px 11px;
+  border-radius: 5px;
+  border: 1.2px solid #c7e3ff;
+  background: #f8fcff;
   font-size: 1em;
 }
-.admin-export-btn:hover {background: #ffdc81;}
+textarea {min-height: 65px; font-family:monospace,'Kanit',sans-serif;}
+@media(max-width:900px){.admin-pane{padding: 1.1em 0.35em;}}
+
+.admin-save-btn, .admin-del-btn {
+  padding: 2px 13px;
+  border-radius:6px; border:0;
+  font-size:.97em; margin:0 1.7px; cursor:pointer;
+  background: #13c579; color:#fff;
+  transition:background .14s;
+}
+.admin-save-btn:hover { background: #24c2eb;}
+.admin-del-btn { background: #f73029;}
+.admin-del-btn:hover {background:#8b0815;}
+
+@media (max-width:550px){
+  .admin-pane>h2{ font-size:1em;}
+  .admin-add-btn, .admin-export-btn {font-size:.95em; padding:7px 12px;}
+  .admin-main {padding:7px 0 25px 2.5vw;}
+}
+
+/* ---- Notifies and tips ---- */
+.admin-tip, .admin-notify-msg {
+  color: #156bc2;
+  font-size: .97em;
+  margin:.6em 0;
+  background: #e7f3ff;
+  border-left:4px solid #18c0db;
+  border-radius:7px;
+  display:inline-block;
+  padding:7px 14px;
+}
+.admin-notify-msg {background:#fff9de; border-left:4px solid #ffc503; color:#b19400;}
+
+@keyframes fadeIn {from{opacity:0;} to{opacity:1;}}
+
+.admin-footer {
+  background: #d9eaf9;
+  color: #617598;
+  text-align: center;
+  font-size: 1em;
+  padding: 11px 0 8px 0;
+  border-top: 2px solid #e6f5ff;
+}
+
+@media (max-width:400px) {
+  .admin-footer, .admin-header { font-size: 0.91em;}
+}
+
+/* -------- Misc/Accessibility -------- */
+input:focus, textarea:focus, select:focus { outline: 2px solid #338afe; }
+::-webkit-scrollbar-thumb { background: #bdddfc; border-radius: 12px; }
+::-webkit-scrollbar-track { background: #f8fafd; }
+::-webkit-scrollbar { width: 10px; }
+
+/* Remove number up/down controls in input[type=number] */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0;}
+input[type="number"] { -moz-appearance:textfield; }
+
+/* Export button (future use) */
+.admin-export-btn {
+  background: #ffc003;
+  color:#2b2420;
+  border: 0;
+  border-radius:6px;
+  padding:7px 15px;
+  margin-left:7px;
+  cursor:pointer;
+  font-size: 1em;
+  transition: background .15s;
+}
+.admin-export-btn:hover {background: #ffe69b;}
