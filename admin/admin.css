@@ -1,0 +1,259 @@
+/* admin.css */
+body {
+  background: #e9f6fa;
+  font-family: 'Kanit', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  color: #25395d;
+}
+
+/* ---------- LOGIN PAGE ---------- */
+.login-box {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 2px 16px #b6ccef;
+  padding: 2em 2.5em;
+  min-width: 340px;
+  max-width: 95vw;
+  text-align: center;
+}
+.login-icon {
+  font-size: 2.8em;
+  color: #2176b5;
+  margin-bottom: 10px;
+  display: block;
+}
+h2, .dash-panel-title, .dash-title { font-weight: 700; letter-spacing: 1px;}
+.login-box h2 { margin: 0 0 7px 0; color: #24678b;}
+.login-input-group {
+  margin: 1.4em 0 0.5em 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.login-input-group label {
+  text-align: left;
+  color: #4f6d87;
+  font-size: 1.08em;
+  margin-bottom: 2px;
+}
+.login-input-group input {
+  padding: 8px 14px;
+  font-size: 1.11em;
+  border: 1.5px solid #b3d2e1;
+  border-radius: 7px;
+  transition: border 0.16s;
+  outline: none;
+}
+.login-input-group input:focus { border: 1.8px solid #2383e2; }
+.login-btn {
+  margin-top: 1.3em;
+  background: #2383e2;
+  color: #fff;
+  border: 0;
+  border-radius: 7px;
+  font-size: 1.18em;
+  font-weight: bold;
+  padding: 0.6em 2em;
+  box-shadow: 0 4px 8px #a0cbfa60;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.login-btn:hover { background: #62b5e8; }
+.error-msg {
+  margin-top: 14px;
+  color: #d53238;
+  font-weight: 500;
+  font-size: 1.06em;
+  min-height: 1.2em;
+}
+.login-footer {
+  margin-top: 1.5em;
+  color: #8fa4b7;
+  font-size: 0.97em;
+  font-style: italic;
+}
+@media only screen and (max-width: 420px) {
+  .login-box { min-width: 98vw; padding:1em 0.3em }
+  .login-btn { width: 95vw; }
+}
+
+/* ---------- DASHBOARD ---------- */
+.dash-container { max-width:1400px; margin:auto; padding:2em 1em; }
+.dash-header {
+  display: flex; align-items:center; margin-bottom:1.5em;
+  border-bottom: 2px solid #cde5fc2b;
+  padding-bottom: 7px;
+}
+.dash-title {
+  font-size: 2.1em; font-weight: bold;
+  color: #24678b;
+  margin-right:1.2em;
+  letter-spacing: 1px;
+  display: flex; align-items: center;
+}
+.dash-title::before { content: "🛡️"; font-size: 1.15em; margin-right: 8px;}
+.dash-user { color: #6e7b96; font-size:1.02em; margin-left:auto; }
+.logout-btn {
+  background: #e32536; color: #fff; border: 0;
+  border-radius: 7px;
+  padding: 9px 18px; font-size: 1em;
+  font-weight: bold; cursor:pointer; margin-left:20px;
+  box-shadow:0 1px 7px #fcd6d6a0;
+  transition: background 0.13s;
+}
+.logout-btn:hover { background: #f96a63; }
+.dash-nav {
+  display:flex; gap:2em; margin-bottom: 1.5em; flex-wrap:wrap;
+  border-bottom: 1px solid #c8eaf7;
+}
+.dash-nav button {
+  background:#2f85fa; color:#fff; border:0;
+  border-radius:8px; padding:11px 22px;
+  font-size:1.12em; cursor:pointer; font-weight:600;
+  box-shadow:0 2px 10px #d1e7fb30;
+  transition: background 0.17s;
+}
+.dash-nav button.active, .dash-nav button:focus {
+  background: #16ca90;
+}
+.dash-section {
+  display:none;
+  background:#fff; border-radius:18px;
+  box-shadow:0 2px 16px #c0d8fc49;
+  padding:2em 2.4em 2em 2em; margin-bottom:2em;
+}
+.dash-section.active { display:block; animation:fadeIn 0.3s;}
+.dash-panel-title {
+  color:#1c5ca3; margin-bottom:1.1em;
+  font-size:1.38em; font-weight:bold; letter-spacing:1px;
+  display: flex; align-items:center;
+}
+.dash-panel-title::before {
+  content:"";
+  font-size:1.15em;
+  margin-right:7px;
+  display: inline-block;
+}
+#character-admin .dash-panel-title::before {content:"👤";}
+#gacha-admin .dash-panel-title::before {content:"🎲";}
+#equipment-admin .dash-panel-title::before {content:"⚔️";}
+#stages-admin .dash-panel-title::before {content:"🗺️";}
+#quests-admin .dash-panel-title::before {content:"🏆";}
+#shop-admin .dash-panel-title::before {content:"🛒";}
+#notify-admin .dash-panel-title::before {content:"📢";}
+
+.dash-footer {
+  text-align:center; padding:.8em 0;
+  color:#7b8ebd; font-size:0.97em;
+  border-top: 1px solid #e4f2fa;
+}
+
+/* ---- Table Styles ---- */
+.dash-table {overflow-x:auto;}
+table { border-collapse: collapse; width: 100%; margin: 20px 0;}
+th, td {
+  border:1px solid #d0d8e4;
+  padding:8px 13px; text-align:left;
+  font-size: 1.07em;
+}
+th {
+  background:#e6f2fe;
+  color: #265c8d;
+}
+tr td:first-child {font-weight:bold;}
+.dash-table input[type="text"],
+.dash-table input[type="number"],
+.dash-table select,
+.dash-table textarea {
+  font-family: inherit;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid #abcdf3;
+  font-size:1em;
+  margin-bottom: 2px;
+  background: #fbfdff;
+}
+.dash-table textarea {
+  min-height: 72px;
+  max-width: 99%;
+  font-family: 'Fira Mono', monospace, 'Kanit', sans-serif;
+}
+
+.admin-edit-btn, .admin-del-btn, .admin-save-btn, .admin-cancel-btn {
+  padding:2px 15px;
+  border-radius:5px; border:0;
+  font-size:.97em; margin:0 2px; cursor:pointer;
+}
+.admin-edit-btn { background: #0682c2; color:#fff;}
+.admin-del-btn { background: #e93523; color:#fff;}
+.admin-save-btn { background: #14a15a; color:#fff;}
+.admin-cancel-btn { background: #ddd; color:#1d1d1d;}
+.admin-add-btn {
+  background: #377fe9;
+  color:#fff;
+  border:0;
+  padding:8px 19px;
+  border-radius:7px;
+  margin:12px 0;
+  cursor:pointer;
+  font-size:1em;
+}
+.admin-add-btn:hover {background: #49a5f5;}
+/* visually support JSON textarea highlight (for stages) */
+.dash-table textarea { background: #f3f7ff; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 700px){
+  .dash-section {padding:1em .3em;}
+  .dash-container {padding:1em .2em;}
+  .dash-header .dash-title {font-size:1.36em;}
+  .dash-nav button {font-size:1em;padding:8px 10px;}
+  .admin-add-btn { padding:6px 10px;}
+  table, th, td { font-size: 0.97em; }
+}
+
+/* ------ Admin notification and success ------ */
+input:disabled, select:disabled {
+  background: #f0f0fa;
+  color: #888;
+}
+
+::-webkit-scrollbar-thumb { background: #d7e3ff; border-radius: 8px; }
+::-webkit-scrollbar-track { background: #f0f3fc; }
+::-webkit-scrollbar { width: 9px; }
+
+.success-msg {
+  color: #23c574;
+  font-size: 1.05em;
+  font-weight: bold;
+  margin: 15px 0 10px 0;
+  display: block;
+}
+.error-msg {
+  color: #e23b3b;
+  font-weight:bold;
+  padding: 4px 0;
+}
+
+/* --- Icon as label style for better accessibility --- */
+th::before, td::before {
+  font-size: 1.13em;
+  margin-right: 3px;
+}
+
+/* --- Misc --- */
+button:focus { outline: 2px solid #256db1; }
+input:focus, textarea:focus, select:focus { outline: 2px solid #12b3e5;}
+
+/* override for textarea (not too high by default) */
+.dash-table textarea {min-height:54px;}
+
+/* Download/Export button (future) */
+.admin-export-btn {
+  background: #f6b300;
+  color:#fff; border: 0; border-radius:6px;
+  padding:5px 13px; margin-left:7px; cursor:pointer;
+  font-size: 1em;
+}
+.admin-export-btn:hover {background: #ffdc81;}

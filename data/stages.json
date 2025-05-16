@@ -1,0 +1,192 @@
+[
+  {
+    "world": 1,
+    "name": "Beginner Plains",
+    "stages": [
+      {
+        "id": "1-1",
+        "name": "Greenhill",
+        "enemies": [
+          { "id": "char004", "name": "Grok", "type": "Normal", "level": 1, "star": 3 },
+          { "id": "char006", "name": "Vera", "type": "Normal", "level": 1, "star": 3 }
+        ],
+        "reward": { "gold": 250, "item": "Minor Potion" },
+        "boss": null
+      },
+      {
+        "id": "1-2",
+        "name": "Pebble Bridge",
+        "enemies": [
+          { "id": "char004", "name": "Grok", "type": "Normal", "level": 2, "star": 3 },
+          { "id": "char003", "name": "Lina", "type": "Normal", "level": 1, "star": 3 }
+        ],
+        "reward": { "gold": 400, "item": "Minor Potion" },
+        "boss": null
+      },
+      {
+        "id": "1-3",
+        "name": "Forest Entrance",
+        "enemies": [
+          { "id": "char006", "name": "Vera", "type": "Normal", "level": 2, "star": 3 },
+          { "id": "char003", "name": "Lina", "type": "Normal", "level": 2, "star": 3 }
+        ],
+        "reward": { "gold": 550, "item": "Gacha Ticket" },
+        "boss": null
+      },
+
+      {
+        "id": "1-11",
+        "name": "Shadow Grove",
+        "enemies": [
+          { "id": "char004", "name": "Grok", "type": "Normal", "level": 6, "star": 3 },
+          { "id": "char002", "name": "Leon", "type": "Normal", "level": 6, "star": 4 }
+        ],
+        "reward": { "gold": 1500, "item": "Minor Potion" },
+        "boss": null
+      },
+      {
+        "id": "1-12",
+        "name": "Plains King",
+        "enemies": [
+          { "id": "char004", "name": "Grok", "type": "Normal", "level": 7, "star": 3 }
+        ],
+        "reward": { "gold": 3500, "item": "Rare Equip Box" },
+        "boss": {
+          "id": "char005",
+          "name": "Neri",
+          "level": 10,
+          "star": 5,
+          "extra_skill": "Fatal Blow",
+          "note": "⚠️ Boss ดาเมจสูงมาก ต้านไม่ไหวสำหรับทีม 3 ดาว LV1"
+        }
+      }
+    ]
+  },
+  {
+    "world": 2,
+    "name": "Forest of Trial",
+    "stages": [
+      {
+        "id": "2-1",
+        "name": "Misty Woods",
+        "enemies": [
+          { "id": "char007", "name": "Orin", "type": "Normal", "level": 8, "star": 4 }
+        ],
+        "reward": { "gold": 700, "item": "Mana Fragment" },
+        "boss": null
+      },
+
+      {
+        "id": "2-12",
+        "name": "Druid's Glade",
+        "enemies": [
+          { "id": "char007", "name": "Orin", "type": "Normal", "level": 14, "star": 4 },
+          { "id": "char001", "name": "Aria", "type": "Normal", "level": 14, "star": 4 }
+        ],
+        "reward": { "gold": 4200, "item": "Epic Potion" },
+        "boss": {
+          "id": "char008",
+          "name": "Mythra",
+          "level": 16,
+          "star": 5,
+          "extra_skill": "Bless"
+        }
+      }
+    ]
+  },
+  {
+    "world": 3,
+    "name": "Sky Ruins",
+    "stages": [
+      {
+        "id": "3-1",
+        "name": "Old Road",
+        "enemies": [
+          { "id": "char001", "name": "Aria", "type": "Normal", "level": 15, "star": 4 },
+          { "id": "char002", "name": "Leon", "type": "Normal", "level": 14, "star": 5 }
+        ],
+        "reward": { "gold": 1200, "item": "Gacha Ticket" },
+        "boss": null
+      },
+
+      {
+        "id": "3-12",
+        "name": "Sky Queen",
+        "enemies": [
+          { "id": "char003", "name": "Lina", "type": "Normal", "level": 22, "star": 4 }
+        ],
+        "reward": { "gold": 8200, "item": "Ancient Herb" },
+        "boss": {
+          "id": "char002",
+          "name": "Leon",
+          "level": 25,
+          "star": 5,
+          "extra_skill": "Burning Blade"
+        }
+      }
+    ]
+  },
+  {
+    "world": 4,
+    "name": "Shadow Depths",
+    "stages": [
+      {
+        "id": "4-1",
+        "name": "Dim Cavern",
+        "enemies": [
+          { "id": "char005", "name": "Neri", "type": "Normal", "level": 24, "star": 5 }
+        ],
+        "reward": { "gold": 1800, "item": "Minor Potion" },
+        "boss": null
+      },
+
+      {
+        "id": "4-12",
+        "name": "Shadow Curse",
+        "enemies": [
+          { "id": "char006", "name": "Vera", "type": "Normal", "level": 31, "star": 4 }
+        ],
+        "reward": { "gold": 9000, "item": "Curse Relic" },
+        "boss": {
+          "id": "char007",
+          "name": "Orin",
+          "level": 34,
+          "star": 5,
+          "extra_skill": "Explosion"
+        }
+      }
+    ]
+  },
+  {
+    "world": 5,
+    "name": "Celestial Peak",
+    "stages": [
+      {
+        "id": "5-1",
+        "name": "Wind Summit",
+        "enemies": [
+          { "id": "char008", "name": "Mythra", "type": "Normal", "level": 34, "star": 5 }
+        ],
+        "reward": { "gold": 2200, "item": "Epic Potion" },
+        "boss": null
+      },
+
+      {
+        "id": "5-12",
+        "name": "Heavenly Trial",
+        "enemies": [
+          { "id": "char008", "name": "Mythra", "type": "Normal", "level": 41, "star": 5 },
+          { "id": "char005", "name": "Neri", "type": "Normal", "level": 41, "star": 5 }
+        ],
+        "reward": { "gold": 17500, "item": "Celestial Ticket" },
+        "boss": {
+          "id": "char001",
+          "name": "Aria",
+          "level": 45,
+          "star": 5,
+          "extra_skill": "Freeze"
+        }
+      }
+    ]
+  }
+]

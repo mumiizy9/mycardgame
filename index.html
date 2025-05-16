@@ -1,0 +1,76 @@
+<footer style="text-align:center;margin:2em 0;color:#b1b5b8;">
+  <a href="./admin/login.html" class="admin-link" style="color:#0970e8;">เข้าสู่ระบบแอดมิน</a>
+</footer>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Team Building - Card Game</title>
+  <link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+  <div class="container">
+    <h1>ระบบจัดทีม (Team Building)</h1>
+    <div id="team-selected" class="team-bar"></div>
+    <hr>
+    <h2>ตัวละครทั้งหมด</h2>
+    <div id="character-list" class="character-list"></div>
+  </div>
+  <script type="text/javascript" src="./components/TeamBuilder.js"></script>
+  <div class="container">
+    <div id="gacha-root"></div>
+  </div>
+  <script src="./components/Gacha.js"></script>
+  <script>initGacha();</script>
+  <div class="container">
+    <div id="upgrade-root"></div>
+  </div>
+  <script src="./components/Upgrade.js"></script>
+  <script>initUpgrade();</script>
+  <div class="container">
+    <div id="equip-root"></div>
+  </div>
+  <script src="./components/Equipment.js"></script>
+  <script>initEquipment();</script>
+  
+  <div class="container">
+    <div id="adventure-root"></div>
+  </div>
+  <script src="./components/Adventure.js"></script>
+  <script>initAdventure();</script>
+  
+  <div class="container">
+    <div id="quests-root"></div>
+  </div>
+  <script src="./components/Quests.js"></script>
+  <script>initQuests();</script>
+  
+  <div class="container">
+    <div id="shop-root"></div>
+  </div>
+  <script src="./shop/shop.js"></script>
+  <script>initShop();</script>
+  
+  <div class="container">
+    <div id="battle-root"></div>
+  </div>
+  <script src="./battle/engine.js"></script>
+  <script src="./components/BattleUI.js"></script>
+  <script>initBattleUI();</script>
+  
+  <div class="container">
+    <div id="arena-root"></div>
+  </div>
+  <script src="./arena/arena.js"></script>
+  <script>initArena();</script>
+  
+  <div class="container">
+    <div id="friend-event-root"></div>
+  </div>
+  <script src="./components/FriendEventUI.js"></script>
+  <script>renderFriendEventUI();</script>
+
+  </body>
+  
+  </html>

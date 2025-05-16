@@ -1,0 +1,122 @@
+[
+  {
+    "id": "char001",
+    "name": "Aria",
+    "job": "Mage",
+    "element": "Water",
+    "level": 1,
+    "rarity": 4,
+    "stats": {
+      "hp": 3200,
+      "atk": 420,
+      "def": 220,
+      "spd": 103
+    },
+    "skills": ["Ice Spear", "Freeze", "Mana Bless"]
+  },
+  {
+    "id": "char002",
+    "name": "Leon",
+    "job": "Warrior",
+    "element": "Fire",
+    "level": 1,
+    "rarity": 5,
+    "stats": {
+      "hp": 3800,
+      "atk": 500,
+      "def": 280,
+      "spd": 99
+    },
+    "skills": ["Sword Slash", "Burning Blade", "Courage"]
+  },
+  {
+    "id": "char003",
+    "name": "Lina",
+    "job": "Healer",
+    "element": "Light",
+    "level": 1,
+    "rarity": 4,
+    "stats": {
+      "hp": 3500,
+      "atk": 260,
+      "def": 240,
+      "spd": 110
+    },
+    "skills": ["Healing Light", "Purify", "Hope"]
+  },
+  {
+    "id": "char004",
+    "name": "Grok",
+    "job": "Tank",
+    "element": "Earth",
+    "level": 1,
+    "rarity": 3,
+    "stats": {
+      "hp": 4400,
+      "atk": 210,
+      "def": 390,
+      "spd": 82
+    },
+    "skills": ["Shield Slam", "Fortify", "Earthquake"]
+  },
+  {
+    "id": "char005",
+    "name": "Neri",
+    "job": "Assassin",
+    "element": "Dark",
+    "level": 1,
+    "rarity": 5,
+    "stats": {
+      "hp": 2700,
+      "atk": 560,
+      "def": 170,
+      "spd": 115
+    },
+    "skills": ["Shadow Hit", "Silent Step", "Fatal Blow"]
+  },
+  {
+    "id": "char006",
+    "name": "Vera",
+    "job": "Support",
+    "element": "Wind",
+    "level": 1,
+    "rarity": 3,
+    "stats": {
+      "hp": 3100,
+      "atk": 230,
+      "def": 220,
+      "spd": 105
+    },
+    "skills": ["Speed Up", "Wind Shield", "Team Spirit"]
+  },
+  {
+    "id": "char007",
+    "name": "Orin",
+    "job": "Mage",
+    "element": "Fire",
+    "level": 1,
+    "rarity": 4,
+    "stats": {
+      "hp": 3000,
+      "atk": 440,
+      "def": 210,
+      "spd": 104
+    },
+    "skills": ["Fire Bolt", "Explosion", "Flame Aura"]
+  },
+  {
+    "id": "char008",
+    "name": "Mythra",
+    "job": "Healer",
+    "element": "Water",
+    "level": 1,
+    "rarity": 5,
+    "stats": {
+      "hp": 3900,
+      "atk": 270,
+      "def": 260,
+      "spd": 113
+    },
+    "skills": ["Healing Wave", "Bless", "Water Guard"]
+  }
+]

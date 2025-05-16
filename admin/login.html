@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Login - Card Game Backoffice</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    body {
+      background: #e9f6fa;
+      font-family: 'Kanit', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 2px 16px #b6ccef;
+      padding: 2em 2.5em;
+      min-width: 340px;
+      max-width: 95vw;
+      text-align: center;
+    }
+    .login-icon {
+      font-size: 2.8em;
+      color: #2176b5;
+      margin-bottom: 10px;
+      display: block;
+    }
+    h2 {
+      margin: 0 0 7px 0;
+      color: #24678b;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .login-input-group {
+      margin: 1.4em 0 0.5em 0;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+    .login-input-group label {
+      text-align: left;
+      color: #4f6d87;
+      font-size: 1.08em;
+      margin-bottom: 2px;
+    }
+    .login-input-group input {
+      padding: 8px 14px;
+      font-size: 1.11em;
+      border: 1.5px solid #b3d2e1;
+      border-radius: 7px;
+      transition: border 0.16s;
+      outline: none;
+    }
+    .login-input-group input:focus {
+      border: 1.8px solid #2383e2;
+    }
+    .login-btn {
+      margin-top: 1.3em;
+      background: #2383e2;
+      color: #fff;
+      border: 0;
+      border-radius: 7px;
+      font-size: 1.18em;
+      font-weight: bold;
+      padding: 0.6em 2em;
+      box-shadow: 0 4px 8px #a0cbfa60;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-btn:hover { background: #62b5e8; }
+    .error-msg {
+      margin-top: 14px;
+      color: #d53238;
+      font-weight: 500;
+      font-size: 1.06em;
+      min-height: 1.2em;
+    }
+    .login-footer {
+      margin-top: 1.5em;
+      color: #8fa4b7;
+      font-size: 0.97em;
+      font-style: italic;
+    }
+    @media only screen and (max-width: 400px) {
+      .login-box { min-width: 99vw; padding:1em 0.2em }
+      .login-btn { width: 96vw; }
+    }
+  </style>
+</head>
+<body>
+
+  <form class="login-box" id="admin-login-form" autocomplete="off">
+    <span class="login-icon">🛡️</span>
+    <h2>เข้าสู่ระบบแอดมิน</h2>
+    <div class="login-input-group">
+      <label for="admin-username">ชื่อผู้ใช้</label>
+      <input id="admin-username" type="text" autocomplete="username" placeholder="กรุณาใส่ชื่อผู้ใช้" required autofocus>
+      <label for="admin-password">รหัสผ่าน</label>
+      <input id="admin-password" type="password" autocomplete="current-password" placeholder="รหัสผ่าน" required>
+    </div>
+    <button class="login-btn" type="submit">เข้าสู่ระบบ</button>
+    <div class="error-msg" id="login-error"></div>
+    <div class="login-footer">© Card Game Admin • 2024</div>
+  </form>
+
+  <script>
+    // รายชื่อแอดมิน (สามารถเพิ่ม/เปลี่ยนชื่อได้)
+    const admins = [
+      { user: "admin", pass: "cardgame123" },
+      { user: "dev", pass: "superdev" },
+      // เพิ่มบัญชี admin เพิ่มเติมได้
+    ];
+
+    // เมื่อกด Enter หรือคลิกปุ่ม
+    document.getElementById("admin-login-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const u = document.getElementById("admin-username").value.trim();
+      const p = document.getElementById("admin-password").value;
+      const errorDiv = document.getElementById("login-error");
+
+      // Clear error
+      errorDiv.textContent = "";
+
+      // ตรวจสอบรหัส
+      const found = admins.find(adm => adm.user === u && adm.pass === p);
+
+      if (found) {
+        // Set sessionStorage (ฝั่ง JS สามารถดึงไปเช็คสิทธิ์ใน dashboard.html ต่อได้)
+        sessionStorage.setItem("isAdmin", "true");
+        sessionStorage.setItem("adminUser", u);
+        console.log("ตั้ง sessionStorage", sessionStorage.getItem("isAdmin"), sessionStorage.getItem("adminUser"));
+        setTimeout(() => window.location.href = "./dashboard.html", 800);
+
+        // แจ้งเตือนและ Redirect
+        errorDiv.style.color = "#10b97c";
+        errorDiv.textContent = "✅ เข้าสู่ระบบสำเร็จ! กำลังเข้าสู่หน้าหลังบ้าน...";
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 900);
+      } else {
+        errorDiv.style.color = "#d53238";
+        errorDiv.textContent = "❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
+      }
+    });
+  </script>
+</body>
+</html>
