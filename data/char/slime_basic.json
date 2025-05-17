@@ -1,0 +1,32 @@
+{
+  "id": "slime_basic",
+  "type": "monster",
+  "name": "Slime (Basic)",
+  "element": "earth",
+  "class": "monster",
+  "rarity": 1,
+  "level": 1,
+  "level_max": 20,
+  "exp": 0,
+  "exp_max": 100,
+  "hp": 240,
+  "atk": 48,
+  "def": 24,
+  "spd": 70,
+  "crit_rate": 0,
+  "crit_dmg": 120,
+  "effectiveness": 0,
+  "resistance": 0,
+  "skills": [
+    {
+      "id": "slime_s1",
+      "name": "Bodyslam",
+      "type": "attack",
+      "desc": "โจมตีเป้าหมายเดียว",
+      "multiplier": 1.1,
+      "effect": {},
+      "cooldown": 0
+    }
+  ],
+  "img": "slime_basic.png"
+}

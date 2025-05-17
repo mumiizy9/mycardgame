@@ -1,0 +1,64 @@
+{
+  "id": "astra",
+  "type": "hero",
+  "name": "Astra",
+  "element": "water",
+  "class": "knight",
+  "rarity": 5,
+  "star": 5,
+  "level": 1,
+  "level_max": 50,
+  "exp": 0,
+  "exp_max": 600,
+  "hp": 1064,
+  "atk": 116,
+  "def": 59,
+  "spd": 67,
+  "crit_rate": 15,
+  "crit_dmg": 150,
+  "effectiveness": 0,
+  "resistance": 20,
+  "skills": [
+    {
+      "id": "astra_s1",
+      "name": "Sword Slash",
+      "type": "attack",
+      "desc": "โจมตีเป้าหมาย 1 ตัว มีโอกาสติด [def break] 1 เทิร์น",
+      "multiplier": 1.02,
+      "effect": {
+        "debuff": [
+          { "type": "def_break", "turn": 1, "chance": 35 }
+        ]
+      },
+      "cooldown": 0
+    },
+    {
+      "id": "astra_s2",
+      "name": "Guardian Blessing",
+      "type": "buff",
+      "desc": "เพิ่ม DEFให้ทั้งทีม 2 เทิร์น",
+      "multiplier": 0,
+      "effect": {
+        "buff": [
+          { "type": "def_up", "turn": 1 }
+        ]
+      },
+      "cooldown": 5
+    },
+    {
+      "id": "astra_s3",
+      "name": "Aegis Pierce",
+      "type": "attack",
+      "desc": "โจมตีหมู่ ศัตรูทุกตัว โอกาสติด stunned 1 เทิร์น",
+      "multiplier": 1.7,
+      "effect": {
+        "debuff": [
+          { "type": "stun", "turn": 3, "chance": 50 }
+        ]
+      },
+      "cooldown": 3
+    }
+  ],
+  "passive": "astra_passive",
+  "img": "astra.png"
+}

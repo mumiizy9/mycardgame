@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Epic Seven - จัดทีม</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="dark-bg">
+
+<header>
+    <nav class="navbar">
+        <div class="logo">EPIC Seven - Card Battle</div>
+        <ul class="menu">
+            <li><button onclick="window.location.href='index.html'">หน้าหลัก</button></li>
+            <li><button onclick="window.location.href='team.html'" class="noti">จัดทีม</button></li>
+            <li><button id="btnBack">กลับ</button></li>
+        </ul>
+        <div class="profile">
+            <span id="playerName"></span>
+            <button id="btnLogin">เข้าสู่ระบบ</button>
+        </div>
+    </nav>
+</header>
+
+<main id="mainTeamSetup" style="max-width: 1000px; margin:20px auto;background:var(--panel-bg);border-radius:12px;box-shadow:0 1px 20px #0006;padding:26px 8px;">
+    <h2 style="margin-bottom:0.8em;">จัดทีมสำหรับต่อสู้</h2>
+    <div class="team-section">
+        <h3>ทีมของฉัน (สูงสุด 4 ตัว)</h3>
+        <div id="teamSlotBar" class="card-row user"></div>
+        <button class="primary-btn" id="btnSaveTeam" style="margin-top:18px;">บันทึกทีม</button>
+    </div>
+    <hr style="margin: 32px 0 18px 0; border:1px solid var(--border);">
+    <h4>ตัวละครที่มี (ลากขึ้นข้างบนเพื่อจัดทีม)</h4>
+    <div id="charCollection" class="card-row" style="flex-wrap:wrap; gap:15px 8px; justify-content:flex-start;"></div>
+</main>
+
+<div id="popupLayer"></div>
+
+<footer>
+    <small style="color: #aaa;">&copy; 2024 - Epic Seven Fan Project Demo Frontend</small>
+</footer>
+
+<script src="js/ui.js"></script>
+<script src="js/team.js"></script>
+</body>
+</html>

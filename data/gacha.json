@@ -1,37 +1,60 @@
 {
-  "gacha_pool": [
-    {
-      "character_id": "char001",
-      "weight": 100
-    },
-    {
-      "character_id": "char002",
-      "weight": 50
-    },
-    {
-      "character_id": "char003",
-      "weight": 100
-    },
-    {
-      "character_id": "char004",
-      "weight": 120
-    },
-    {
-      "character_id": "char005",
-      "weight": 30
-    },
-    {
-      "character_id": "char006",
-      "weight": 120
-    },
-    {
-      "character_id": "char007",
-      "weight": 90
-    },
-    {
-      "character_id": "char008",
-      "weight": 30
-    }
-  ],
-  "gacha_cost": 1000
+    "gachas": [
+        {
+            "id": "premium_summon",
+            "name": "Premium Gacha",
+            "type": "normal",
+            "enabled": true,
+            "cost": {
+                "item": "diamond",
+                "amount": 50
+            },
+            "pool": [
+                {
+                    "char_id": "astra",
+                    "rarity": 5,
+                    "rate": 5
+                },
+                {
+                    "char_id": "slime_basic",
+                    "rarity": 3,
+                    "rate": 95
+                }
+            ],
+            "pity": {
+                "enabled": true,
+                "max": 20,
+                "guarantee_rarity": 5
+            },
+            "banner_img": "gacha_premium.png",
+            "desc": "สุ่มตัวละครระดับสูง\nยิ่งหมุนเยอะยิ่งมีโอกาสได้ ★5!"
+        },
+        {
+            "id": "event_summon_may2024",
+            "name": "May 2024 Event",
+            "type": "event",
+            "enabled": false,
+            "cost": {
+                "item": "ticket_event",
+                "amount": 1
+            },
+            "pool": [
+                {
+                    "char_id": "astra",
+                    "rarity": 5,
+                    "rate": 10
+                },
+                {
+                    "char_id": "slime_basic",
+                    "rarity": 3,
+                    "rate": 90
+                }
+            ],
+            "pity": {
+                "enabled": false
+            },
+            "banner_img": "gacha_event_may2024.png",
+            "desc": "เฉพาะกิจ - ใช้ตั๋ว Event เท่านั้น"
+        }
+    ]
 }

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "spd_rare",
+    "name": "Speed Rune",
+    "slot": 2,
+    "main_stat": { "type": "spd", "val": 25 },
+    "sub_stats": [
+      { "type": "atk_pct", "val": 7 },
+      { "type": "def", "val": 16 }
+    ],
+    "set": "speed",
+    "rarity": 4,
+    "icon": "💨"
+  },
+  {
+    "id": "atk_pure",
+    "name": "Attack Rune",
+    "slot": 1,
+    "main_stat": { "type": "atk_pct", "val": 15 },
+    "sub_stats": [
+      { "type": "spd", "val": 5 }
+    ],
+    "set": "rage",
+    "rarity": 3,
+    "icon": "⚔️"
+  },
+  {
+    "id": "crit_big",
+    "name": "Critical Rune",
+    "slot": 4,
+    "main_stat": { "type": "crit_pct", "val": 12 },
+    "sub_stats": [
+      { "type": "atk_pct", "val": 6 },
+      { "type": "spd", "val": 7 },
+      { "type": "effectiveness", "val": 4 }
+    ],
+    "set": "critical",
+    "rarity": 5,
+    "icon": "🎯"
+  },
+  {
+    "id": "def_basic",
+    "name": "Defense Rune",
+    "slot": 3,
+    "main_stat": { "type": "def_pct", "val": 10 },
+    "sub_stats": [],
+    "set": "defend",
+    "rarity": 2,
+    "icon": "🛡️"
+  },
+  {
+    "set_bonuses": {
+      "speed":    { "slot_required": 2, "bonus": { "spd": 25 },        "desc": "Speed +25%"  },
+      "rage":     { "slot_required": 4, "bonus": { "atk_pct": 35 },     "desc": "ATK +35%"    },
+      "critical": { "slot_required": 2, "bonus": { "crit_pct": 12 },    "desc": "Crit +12%"   },
+      "defend":   { "slot_required": 2, "bonus": { "def_pct": 15 },     "desc": "DEF +15%"    }
+    }
+  }
+]

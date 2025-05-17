@@ -1,0 +1,28 @@
+{
+  "levelup": {
+    "exp_required_base": 600,
+    "exp_curve": 1.2,
+    "exp_item": "exp_potion"
+  },
+  "promotion": {
+    "star_max": 6,
+    "requirements": [
+      { "star": 3, "cost_gold": 1000, "materials": [ { "id": "rune_shard", "qty": 4 } ] },
+      { "star": 4, "cost_gold": 4000, "materials": [ { "id": "rune_shard", "qty": 9 } ] },
+      { "star": 5, "cost_gold": 9000, "materials": [ { "id": "rune_shard", "qty": 15 }, { "id": "heal_potion", "qty": 2 } ] }
+    ]
+  },
+  "skillup": {
+    "item": "skill_book",
+    "increase_percent": 11,
+    "max_lv": 6,
+    "cost_gold": 700
+  },
+  "awaken": {
+    "enabled": true,
+    "require_materials": [
+      { "star": 4, "materials": [ { "id": "rune_shard", "qty": 8 }, { "id": "heal_potion", "qty": 1 } ] },
+      { "star": 5, "materials": [ { "id": "rune_shard", "qty": 14 }, { "id": "heal_potion", "qty": 2 } ] }
+    ]
+  }
+}
