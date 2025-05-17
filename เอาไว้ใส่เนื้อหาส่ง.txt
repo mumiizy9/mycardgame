@@ -568,3 +568,8 @@ Export log แชท
 22 energy.js, data/energy.json – พลังงาน / stamina | ใช้ลดตอนลงดันเจี้ยน, รีเซ็ตด้วยไอเท็ม
 23 data/config.json – การตั้งค่าเกมหลัก | เช่น cooldown base, exp rate, drop rate
 24 localization.js, data/lang/*.json – ระบบภาษาหลายภาษา | ใช้ใน UI, แปลทุกระบบแบบ modular
+
+
+
+git branch -M main
+git push -u origin main
