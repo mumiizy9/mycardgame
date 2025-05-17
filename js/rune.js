@@ -1,9 +1,10 @@
 // js/rune.js
+
 let runeData = [];
 let runeSetBonuses = {};
-let userRunes = [];    // รูนทั้งหมดใน inventory (id,unlock,slot ฯลฯ)
+let userRunes = [];    // ทุกรูนของ user (id, unlock, slot)
 let equippedRunes = {}; // { char_id: [slot1, slot2, slot3, slot4] }
-let currentCharEquip = null;   // ชื่อตัวละครที่กำลังสวมใส่
+let currentCharEquip = null;
 
 // โหลดข้อมูลรูนจาก data/rune.json
 async function loadRuneData() {
@@ -29,7 +30,6 @@ function saveUserRunes() {
 async function openRuneEquipPopup(char_id) {
   await loadRuneData(); loadUserRunes();
   currentCharEquip = char_id;
-  // เตรียม grid ช่อง/รูน
   let charRunes = equippedRunes[char_id] || [null, null, null, null];
   let runeSlotHtml = '';
   for (let slot = 1; slot <= 4; slot++) {
@@ -49,7 +49,7 @@ async function openRuneEquipPopup(char_id) {
   const setBuffHtml = renderSetBonus(charRunes);
   const html = `
     <div style="display:flex;flex-direction:column;gap:7px;">
-      <h3>ร'ุนของตัวละครนี้</h3>
+      <h3>รูนของตัวละครนี้</h3>
       ${runeSlotHtml}
       ${setBuffHtml}
       <button class="secondary-btn" onclick="closePopup()">บันทึกและปิด</button>
@@ -79,11 +79,10 @@ function renderSetBonus(runeIdArr) {
   return buffHtml ? `<div style="margin-top:14px;">${buffHtml}</div>` : '';
 }
 
-// ใช้เพิ่ม/ลดรูนกับช่อง
+// เลือกรูน
 window.showSelectRune = function(slot) {
-  // แสดง pop-up เลือกรูนที่ยัง “ไม่ได้ใส่ใคร”
-  let avai = userRunes.filter(r => !Object.values(equippedRunes)
-                        .flat().includes(r.rune_id) && runeData.find(x => x.id === r.rune_id)?.slot === slot);
+  let avai = userRunes.filter(r =>
+    !Object.values(equippedRunes).flat().includes(r.rune_id) && runeData.find(x => x.id === r.rune_id)?.slot === slot);
   let html = avai.length
       ? avai.map(r => {
           let d = runeData.find(x => x.id === r.rune_id);
@@ -97,7 +96,7 @@ window.showSelectRune = function(slot) {
   window.openPopup('selectRune', html, 'small', `เลือกรูน ช่อง ${slot}`);
 };
 
-// เสริม-helper
+// ข้อความหลักของ stat
 function mainStatText(stat) {
   if (!stat) return "";
   const lib = { spd: 'SPD', atk_pct: 'ATK%', def: 'DEF', def_pct: 'DEF%', crit_pct: 'CRIT%', effectiveness: 'EFF' };
@@ -110,10 +109,11 @@ window.equipRuneSlot = function(rune_id, slot) {
   charRunes[slot - 1] = rune_id;
   equippedRunes[currentCharEquip] = charRunes;
   saveUserRunes();
-  closePopup('selectRune'); // ปิดเลือกรูน
+  closePopup('selectRune');
   openRuneEquipPopup(currentCharEquip);
 };
-// ถอนรูน (ช่อง)
+
+// ถอนรูน
 window.unequipRune = function(slot) {
   let charRunes = equippedRunes[currentCharEquip] || [null,null,null,null];
   charRunes[slot - 1] = null;
@@ -122,14 +122,11 @@ window.unequipRune = function(slot) {
   openRuneEquipPopup(currentCharEquip);
 };
 
-// อัปเกรดรูน (ใช้วัตถุดิบ) - โบนัสสุ่ม (Mock)
+// อัปเกรดรูน (mock)
 window.upgradeRune = function(rune_id) {
-  // จงสร้างระบบอัปเกรด + วัตถุดิบ (mock)
   alert("= Demo = คุณอัปเลเวลรูน " + rune_id + " แล้ว (mock)");
 };
 
-
-/* เพิ่มเติม: export ให้ระบบอื่นเชื่อม */
 window.runeEngine = {
   openEquipPopup: openRuneEquipPopup,
   getEquipped: function(char_id) { loadUserRunes(); return equippedRunes[char_id] || [null,null,null,null]; },
@@ -138,10 +135,9 @@ window.runeEngine = {
   removeRune: function(rune_id) { userRunes = userRunes.filter(r => r.rune_id !== rune_id); saveUserRunes(); }
 };
 
-// Hook DOM ในคลังตัวละคร (เช่นปุ่ม)
+// Hook DOM ในคลังตัวละคร (คลิกปุ่ม "ใส่รูน" ได้)
 document.addEventListener('DOMContentLoaded', async () => {
   await loadRuneData(); loadUserRunes();
-  // ตัวอย่างปุ่ม: <button data-equiprune="cid">ติดตั้งรูน</button>
   if (document.getElementById('characterArea')) {
     document.getElementById('characterArea').addEventListener('click', e => {
       const btn = e.target.closest('[data-equiprune]');

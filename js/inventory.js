@@ -8,11 +8,13 @@ async function loadItemData() {
   if (itemData.length) return;
   itemData = await fetch('data/item.json').then(r => r.json());
 }
+
 /** โหลดคลังของผู้เล่น (จาก localStorage) */
 function loadInventory() {
   let raw = localStorage.getItem('user_inventory');
   inventory = raw ? JSON.parse(raw) : [];
 }
+
 /** เซฟ inventory */
 function saveInventory() {
   localStorage.setItem('user_inventory', JSON.stringify(inventory));
@@ -22,6 +24,7 @@ function saveInventory() {
 function findItemById(id) {
   return itemData.find(i => i.id === id);
 }
+
 /** render UI คลังไอเท็ม */
 function renderInventoryUI() {
   let html = `
@@ -40,7 +43,7 @@ function renderInventoryUI() {
             </div>
             <div style="color:#aaffbe;font-weight:bold;font-size:1.07em;">x${item.qty}</div>
             ${info.usable ? `<button class="primary-btn" style="padding:5px 1em 5px 1em;font-size:.96em;" onclick="useItemPrompt('${item.id}')">ใช้เลย</button>` : ""}
-          </div>`
+          </div>`;
         }).join('')}
     </div>
   `;
@@ -69,7 +72,7 @@ window.useItemNow = function(itemId) {
   if (inventory[idx].qty <= 0) return;
   // Effect (mock: อัปเดต character / heal / exp อัตโนมัติ)
   if (info.effect && info.effect.exp) {
-    // เพิ่ม exp ตัวละครแรกใน team (ตัวอย่าง)
+    // เพิ่ม exp ตัวละครแรกใน team
     let t = JSON.parse(localStorage.getItem('userTeam') || "[]");
     if (t.length) {
       let cid = t[0];
@@ -81,7 +84,16 @@ window.useItemNow = function(itemId) {
       }
     }
   }
-  // TODO: รองรับ heal, skillup, hp_pct, etc. ต่อ
+  // Heal to selected: (Opt: implement in character select popup)
+  // เพิ่ม energy bar (สำหรับ Heal Potion) 
+  if (info.effect && info.effect.energy) {
+    let energy = Number(localStorage.getItem("user_energy") || 0);
+    let maxEnergy = 45; // default, สามารถโยง config/energy.js ได้
+    let after = Math.min(maxEnergy, energy + info.effect.energy);
+    localStorage.setItem("user_energy", after);
+    alert(`เติม Energy +${after - energy}`);
+    if (typeof renderEnergyBar === "function") renderEnergyBar();
+  }
   inventory[idx].qty--;
   if (inventory[idx].qty === 0) inventory.splice(idx, 1);
   saveInventory();
@@ -108,7 +120,7 @@ window.removeFromInventory = function(itemId, qty) {
   }
 }
 
-/** พร้อมใช้งานร่วมกับ popups (เช่น index.html, quest, shop ฯลฯ) */
+// DOM integration, auto popup on menu
 document.addEventListener('DOMContentLoaded', async () => {
   await loadItemData();
   loadInventory();
@@ -122,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   let btn = document.getElementById('btnInventory');
   if (btn) btn.onclick = showInvPopup;
-  // Hook สำหรับระบบอื่นเรียก
+
   window.renderInventoryUI = renderInventoryUI;
 });
 

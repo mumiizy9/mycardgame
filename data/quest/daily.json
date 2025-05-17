@@ -1,0 +1,13 @@
+{
+  "quests": [
+    {
+      "id": "daily_login",
+      "name": "เข้าสู่ระบบวันนี้",
+      "desc": "ล็อกอินเข้าเกม 1 ครั้ง",
+      "target": 1,
+      "reward": [
+        {"type": "item", "id": "exp_potion", "qty": 1}
+      ]
+    }
+  ]
+}

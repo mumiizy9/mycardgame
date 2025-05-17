@@ -1,0 +1,67 @@
+{
+  "shops": [
+    {
+      "id": "main",
+      "name": "ร้านค้าหลัก",
+      "type": "main",
+      "enabled": true,
+      "desc": "ซื้อไอเท็ม, วัตถุดิบ, และของจำเป็นประจำวัน",
+      "refresh_type": "none",    
+      "refresh_cycle_minutes": 0,
+      "items": [
+        {
+          "id": "gold_5000",
+          "item_id": "gold",
+          "amount": 5000,
+          "price_item": "diamond",
+          "price_amount": 10,
+          "desc": "รับ 5,000 Gold ทันที",
+          "can_buy": 999,
+          "daily_limit": 3,
+          "enabled": true
+        },
+        {
+          "id": "exp_potion_1",
+          "item_id": "exp_potion",
+          "amount": 1,
+          "price_item": "gold",
+          "price_amount": 110,
+          "desc": "EXP Potion x1 สำหรับอัปเลเวลตัวละคร",
+          "can_buy": 99,
+          "daily_limit": 5,
+          "enabled": true
+        },
+        {
+          "id": "rune_shard_1",
+          "item_id": "rune_shard",
+          "amount": 1,
+          "price_item": "gold",
+          "price_amount": 200,
+          "desc": "Rune Shard สำหรับสร้างรูน",
+          "can_buy": 50,
+          "daily_limit": 0,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "id": "event",
+      "name": "Event Shop",
+      "type": "event",
+      "enabled": false,
+      "desc": "ร้านค้านี้เปิดเฉพาะช่วงกิจกรรม",
+      "refresh_type": "none",
+      "items": []
+    },
+    {
+      "id": "secret",
+      "name": "Secret Shop",
+      "type": "secret",
+      "enabled": false,
+      "desc": "สุ่มเปลี่ยนสินค้าใหม่ทุก 30 นาที",
+      "refresh_type": "time",
+      "refresh_cycle_minutes": 30,
+      "items": []
+    }
+  ]
+}

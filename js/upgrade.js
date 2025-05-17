@@ -2,28 +2,26 @@
 
 let upgradeConfig = {};
 let charUpgradeTarget = null;
-let inventory = []; // preload via inventory.js
 
-/** โหลดข้อมูล config อัปเกรดจาก /data/upgrade.json */
+function example() {
+    let inventory = window.inventoryEngine.list();
+}
+
+/** Load upgrade config from /data/upgrade.json */
 async function loadUpgradeConfig() {
   if (Object.keys(upgradeConfig).length) return;
   upgradeConfig = await fetch('data/upgrade.json').then(r => r.json());
 }
 
-/** Render ป๊อปอัปอัปเกรดตัวละคร โชว์ stat + ปุ่มอัปเลเวล/อัปสกิล/เลื่อนขั้น */
+/** Render Upgrade popup for a character */
 async function openUpgradePopup(characterId) {
   await loadUpgradeConfig();
   await window.inventoryEngine.reloadAll();
   let char = JSON.parse(localStorage.getItem('char_' + characterId)
                || localStorage.getItem('char_' + characterId.replace('_', ''))
                || '{}');
-  if (!char || !char.id) {
-    alert("ไม่พบตัวละครนี้");
-    return;
-  }
-  charUpgradeTarget = char; // export สำหรับ event ภายนอก
-
-  // Render main popup
+  if (!char || !char.id) { alert("ไม่พบตัวละครนี้"); return; }
+  charUpgradeTarget = char;
   let html = `
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
       <img src="img/char/${char.img}" style="width:72px;border-radius:15px;box-shadow:0 0 22px #1defeb66;">
@@ -44,18 +42,14 @@ async function openUpgradePopup(characterId) {
   window.openPopup('upgradePopup', html, 'large', 'อัปเกรดตัวละคร');
 }
 
-/** อัปเลเวล (ใช้ exp_potion ได้ก่อน, หรือจำลองได้) */
+/** Level Up (use exp_potion) */
 window.doLevelUpChar = function (charId) {
   let char = JSON.parse(localStorage.getItem('char_' + charId));
   if (!char) return;
   let expItem = upgradeConfig.levelup.exp_item;
   let inv = window.inventoryEngine.list();
   let owned = inv.find(i => i.id === expItem);
-  if (!owned || owned.qty <= 0) {
-    alert("ไม่มี EXP Potion ในคลัง");
-    return;
-  }
-  // EXP เพิ่ม
+  if (!owned || owned.qty <= 0) { alert("ไม่มี EXP Potion ในคลัง"); return; }
   let expAdd = 500;
   char.exp = (char.exp || 0) + expAdd;
   let lvled = false;
@@ -65,7 +59,6 @@ window.doLevelUpChar = function (charId) {
     lvled = true;
   }
   if (lvled) alert("Level UP!");
-  // เพิ่ม status ทุกเลเวล (สูตร basic -- สามารถโยง config/curve ต่อได้)
   char.hp = Math.round(char.hp * 1.085);
   char.atk = Math.round(char.atk * 1.08);
   char.def = Math.round(char.def * 1.09);
@@ -74,7 +67,7 @@ window.doLevelUpChar = function (charId) {
   openUpgradePopup(char.id);
 };
 
-/** อัปสกิล (ใช้ skill_book, เพิ่ม multiplier, ลดคูลดาวน์) */
+/** Skill Up (use skill_book) */
 window.doSkillUpChar = function (charId) {
   let char = JSON.parse(localStorage.getItem('char_' + charId));
   if (!char) return;
@@ -82,16 +75,12 @@ window.doSkillUpChar = function (charId) {
   let skillBookItem = upgradeConfig.skillup.item;
   let owned = inv.find(i => i.id === skillBookItem);
   if (!owned || owned.qty <= 0) { alert("ไม่มี Skill Book ในคลัง"); return; }
-  // Pick skill to up (สุ่ม 1 skill)
   let skills = char.skills || [];
   if (!skills.length) { alert("ไม่มีสกิลให้อัปเกรด"); return; }
   let idx = Math.floor(Math.random() * skills.length);
   let sk = skills[idx];
-  // เพิ่ม multiplier และลด cooldown ถ้าได้
-  if (sk.multiplier)
-    sk.multiplier = +(sk.multiplier + upgradeConfig.skillup.increase_percent/100).toFixed(2);
-  if (sk.cooldown && sk.cooldown > 1)
-    sk.cooldown = Math.max(1, sk.cooldown - 1);
+  if (sk.multiplier) sk.multiplier = +(sk.multiplier + upgradeConfig.skillup.increase_percent/100).toFixed(2);
+  if (sk.cooldown && sk.cooldown > 1) sk.cooldown = Math.max(1, sk.cooldown - 1);
   char.skills[idx] = sk;
   localStorage.setItem('char_' + char.id, JSON.stringify(char));
   window.inventoryEngine.remove(skillBookItem, 1);
@@ -99,27 +88,21 @@ window.doSkillUpChar = function (charId) {
   openUpgradePopup(char.id);
 };
 
-/** เลื่อนขั้น/Promotion เพิ่มดาว (ใช้ gold+materials) */
+/** Promote: Increase Stars (use gold + material) */
 window.doPromoteChar = function (charId) {
   let char = JSON.parse(localStorage.getItem('char_' + charId));
   if (!char) return;
   let starNext = (char.star || 1) + 1;
   let prom = upgradeConfig.promotion.requirements.find(r => r.star === char.star);
   if (!prom) { alert("ดาวสูงสุดแล้ว"); return; }
-  // เช็คของ
   let inv = window.inventoryEngine.list();
   let gold = inv.find(i => i.id === 'gold');
-  if (!gold || gold.qty < prom.cost_gold) {
-    alert("Gold ไม่พอ");
-    return;
-  }
+  if (!gold || gold.qty < prom.cost_gold) { alert("Gold ไม่พอ"); return; }
   let enough = prom.materials.every(mat =>
     inv.find(i => i.id === mat.id && i.qty >= mat.qty));
   if (!enough) { alert("วัตถุดิบไม่พอ"); return; }
-  // หักของ
   window.inventoryEngine.remove('gold', prom.cost_gold);
   prom.materials.forEach(mat => window.inventoryEngine.remove(mat.id, mat.qty));
-  // เพิ่มดาว+อัป stat
   char.star = starNext;
   char.hp = Math.floor(char.hp * 1.20);
   char.atk = Math.floor(char.atk * 1.15);
@@ -129,11 +112,9 @@ window.doPromoteChar = function (charId) {
   openUpgradePopup(char.id);
 };
 
-// เชื่อม event กับ popup
+// เชื่อมกับ characterCollection
 document.addEventListener('DOMContentLoaded', () => {
-  // Hook กับ characterCollection
   window.upgradeCharPopup = openUpgradePopup;
-  // ถ้ามีการกดปุ่มจากคลังตัวละครให้เชื่อมได้เลย ตัวอย่าง:
   let area = document.getElementById('characterArea');
   if (area) area.addEventListener('click', e => {
     let target = e.target.closest('[data-upgrade]');
@@ -141,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Expose ให้ระบบอื่นเรียก
+// Expose
 window.upgradeEngine = {
   open: openUpgradePopup,
   reloadConfig: loadUpgradeConfig

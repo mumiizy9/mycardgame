@@ -6,27 +6,51 @@
     <title>Epic Seven Card Auto Battle</title>
     <link rel="stylesheet" href="css/style.css" />
     <link rel="icon" href="favicon.ico" />
+    <style>
+      #mainBattlefield.hide { display:none; }
+    </style>
 </head>
 <body class="dark-bg">
-
     <!-- NAVBAR -->
     <header>
         <nav class="navbar">
             <div class="logo">EPIC Seven - Card Battle</div>
             <ul class="menu">
-                <li><button id="btnTeam">จัดทีม</button></li>
-                <li><button id="btnBattle">ต่อสู้</button></li>
-                <li><button id="btnInventory">คลังไอเท็ม</button></li>
-                <li><button id="btnQuest">เควสต์</button></li>
-                <li><button id="btnShop">ร้านค้า</button></li>
-                <li><button id="btnGacha">กาชา</button></li>
-                <li><button id="btnCharacter">คลังตัวละคร</button></li>
-                <li><button id="btnAnnouncement">ประกาศ</button></li>
-                <li><button id="btnChat">แชท</button></li>
+                <li>
+                    <!-- เปลี่ยนเป็นลิงก์ไป team.html -->
+                    <button id="btnTeam" onclick="window.location.href='team.html'">จัดทีม</button>
+                </li>
+                <li>
+                    <button id="btnBattle">ต่อสู้</button>
+                </li>
+                <li>
+                    <button id="btnInventory" onclick="openPopup('inventory')">คลังไอเท็ม</button>
+                </li>
+                <li>
+                    <button id="btnQuest" onclick="openPopup('quest')">เควสต์</button>
+                </li>
+                <li>
+                    <button id="btnShop" onclick="openPopup('shop')">ร้านค้า</button>
+                </li>
+                <li>
+                    <button id="btnGacha" onclick="openPopup('gacha')">กาชา</button>
+                </li>
+                <li>
+                    <button id="btnCharacter" onclick="openPopup('characterCollection')">คลังตัวละคร</button>
+                </li>
+                <li>
+                    <button id="btnAnnouncement" onclick="openPopup('announcement')">ประกาศ</button>
+                </li>
+                <li>
+                    <button id="btnChat" onclick="openPopup('chat')">แชท</button>
+                </li>
+                <li>
+                    <button id="btnLogin" onclick="openPopup('login')">เข้าสู่ระบบ</button>
+                </li>
             </ul>
             <div class="profile">
                 <span id="playerName"></span>
-                <button id="btnLogin">เข้าสู่ระบบ</button>
+                <button id="btnLogin" onclick="openPopup('login')">เข้าสู่ระบบ</button>
             </div>
         </nav>
     </header>
@@ -34,7 +58,7 @@
     <!-- POPUP LAYER (ทุก feature เป็น popup ไม่ reload หน้า/เลื่อน) -->
     <div id="popupLayer"></div>
 
-    <!-- MAIN BATTLE FIELD (หน้าแสดงทีม/มอนเตอร์/auto battle) -->
+    <!-- MAIN BATTLE FIELD (ซ่อนอยู่จนกด "ต่อสู้") -->
     <main id="mainBattlefield" class="hide">
         <section class="battlefield">
             <!-- PLAYER TEAM (4 ใบ) -->
@@ -58,18 +82,21 @@
 
     <!-- FOOTER -->
     <footer>
-        <small style="color: #aaa;">&copy; 2024 - Epic Seven Fan Project Demo Frontend</small>
+        <small style="color: #aaa;">© 2024 - Epic Seven Fan Project Demo Frontend</small>
+        <div id="footerLangMenu" style="margin-top:8px; text-align:center;"></div>
     </footer>
 
     <!-- JS -->
-    <script src="js/ui.js"></script>
+    <!-- (แนะนำ popupManager.js ไว้บน js ฟีเจอร์ เพื่อให้ openPopup เรียกได้ก่อน) -->
+    <script src="js/popupManager.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/reward.js"></script>
     <script src="js/team.js"></script>
     <script src="js/battle.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/animationEngine.js"></script>
     <script src="js/effect.js"></script>
     <script src="js/result.js"></script>
-    <script src="js/popupManager.js"></script>
     <script src="js/inventory.js"></script>
     <script src="js/upgrade.js"></script>
     <script src="js/rune.js"></script>
@@ -86,5 +113,75 @@
     <script src="js/gachaLog.js"></script>
     <script src="js/energy.js"></script>
     <script src="js/localization.js"></script>
+   
+    <!-- Map ปุ่มเมนูให้ป๊อปอัป (ยกเว้น btnTeam ที่ redirect) -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Helper function global สำหรับ set ชื่อผู้เล่นและ noti dot
+        window.setPlayerName = function (name) {
+          var el = document.getElementById('playerName');
+          if (el) el.textContent = name || '';
+        };
+        window.setMenuNoti = function (btnId, show) {
+          var btn = document.getElementById(btnId);
+          if (btn) {
+            if (show) btn.classList.add('noti');
+            else btn.classList.remove('noti');
+          }
+        };
+        // Map ปุ่มเมนูอื่นๆ เฉพาะที่ไม่ได้ระบุ onclick
+        var menu = [
+            ['btnInventory',   'inventory'],
+            ['btnQuest',       'quest'],
+            ['btnShop',        'shop'],
+            ['btnGacha',       'gacha'],
+            ['btnCharacter',   'characterCollection'],
+            ['btnAnnouncement','announcement'],
+            ['btnChat',        'chat'],
+            ['btnLogin',       'login']
+        ];
+        menu.forEach(function(pair){
+          var btn = document.getElementById(pair[0]);
+          if (btn && !btn.onclick) btn.onclick = function(){ openPopup(pair[1]); };
+        });
+
+        // --------- เฉพาะ BATTLE MENU ---------
+        var btnBattle = document.getElementById('btnBattle');
+        var mainBattle = document.getElementById('mainBattlefield');
+        if (btnBattle && mainBattle) {
+          btnBattle.onclick = async function(){
+            // โชว์ mainBattlefield
+            mainBattle.classList.remove('hide');
+
+            // load and prepare battlefield (ตาม battle.js ของคุณ)
+            if (window.battleEngine && battleEngine.loadBattleTeams) {
+              await battleEngine.loadBattleTeams();
+              battleEngine.initSpdBar();
+              battleEngine.renderBattlefield();
+              // จะให้เริ่มออโต้เลยมั้ย? ถ้าใช่ใส่ battleEngine.startBattle();
+            }
+          };
+        }
+
+        // ปุ่ม Auto Battle = เริ่ม start เลย
+        var btnAuto = document.getElementById('btnStartAuto');
+        if(btnAuto){
+          btnAuto.onclick = function(){
+            if(window.battleEngine && battleEngine.startBattle){
+              battleEngine.startBattle();
+            }
+          };
+        }
+
+        // ปุ่ม "กลับ" = ซ่อนสนามรบ
+        var btnBack = document.getElementById('btnBack');
+        if(btnBack){
+          btnBack.onclick = function(){
+            mainBattle.classList.add('hide');
+            // เพิ่ม stop/clear หรือ reset state ถ้ามีในระบบของคุณ
+          };
+        }
+      });
+    </script>
 </body>
 </html>

@@ -1,0 +1,68 @@
+{
+  "menu": {
+    "team": "จัดทีม",
+    "battle": "ต่อสู้",
+    "inventory": "คลังไอเท็ม",
+    "quest": "เควสต์",
+    "shop": "ร้านค้า",
+    "gacha": "กาชา",
+    "character": "คลังตัวละคร",
+    "announcement": "ประกาศ",
+    "chat": "แชท",
+    "login": "เข้าสู่ระบบ",
+    "logout": "ออกจากระบบ"
+  },
+  "popup": {
+    "ok": "ตกลง",
+    "cancel": "ยกเลิก",
+    "close": "ปิด",
+    "confirm": "ยืนยัน",
+    "use_item": "ใช้ไอเท็ม",
+    "upgrade": "อัปเกรด",
+    "equip": "ใส่รูน",
+    "result_win": "ชัยชนะ!",
+    "result_lose": "แพ้"
+  },
+  "battle": {
+    "auto": "ออโต้",
+    "start": "เริ่มต่อสู้",
+    "back": "กลับ",
+    "hp": "HP",
+    "atk": "โจมตี",
+    "def": "ป้องกัน",
+    "spd": "ความเร็ว",
+    "crit": "คริ",
+    "exp_gain": "ได้รับ EXP",
+    "drop_items": "ไอเท็มที่ได้รับ"
+  },
+  "inventory": {
+    "title": "คลังไอเท็ม",
+    "use": "ใช้",
+    "no_item": "ยังไม่มีไอเท็ม"
+  },
+  "character": {
+    "title": "คลังตัวละคร",
+    "lock": "ล็อก",
+    "unlock": "ปลดล็อก",
+    "upgrade": "อัปเกรด"
+  },
+  "gacha": {
+    "draw1": "สุ่ม 1 ครั้ง",
+    "draw10": "สุ่ม 10 ครั้ง",
+    "result": "ผลลัพธ์การกาชา"
+  },
+  "energy": {
+    "energy": "พลังงาน",
+    "full": "เต็ม",
+    "refill": "เติมพลังงาน",
+    "next": "อีก {min} นาที"
+  },
+  "admin": {
+    "panel": "Admin Panel",
+    "user": "ผู้ใช้",
+    "item": "ไอเท็ม",
+    "quest": "เควสต์",
+    "gacha": "กาชา",
+    "shop": "ร้านค้า"
+  }
+}

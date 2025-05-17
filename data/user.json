@@ -1,0 +1,23 @@
+[
+  {
+    "id": "admin",
+    "name": "Admin",
+    "password": "adminpass123",
+    "role": "admin",
+    "enabled": true
+  },
+  {
+    "id": "player1",
+    "name": "Achiraya",
+    "password": "p1demo!!",
+    "role": "player",
+    "enabled": true
+  },
+  {
+    "id": "player2",
+    "name": "Somchai",
+    "password": "playerdemo2",
+    "role": "player",
+    "enabled": true
+  }
+]

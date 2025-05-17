@@ -1,0 +1,85 @@
+{
+  "id": "chapter1",
+  "name": "หุบเขาเริ่มต้น",
+  "desc": "จุดกำเนิดการผจญภัยของคุณในโลกสุดอันตราย",
+  "zones": [
+    {
+      "id": "zone1",
+      "name": "ทุ่งฝึกฝน",
+      "stages": [
+        {
+          "id": "stage1",
+          "name": "ทางเข้าหุบเขา",
+          "desc": "สู้กับ Slime ตัวแรก! ฝึกพื้นฐานการต่อสู้",
+          "require_energy": 5,
+          "waves": [
+            {
+              "wave_no": 1,
+              "enemies": [
+                { "id": "slime_basic", "level": 1 }
+              ]
+            }
+          ],
+          "unlocked_by": null,
+          "drops": [
+            { "id": "exp_potion", "min": 1, "max": 1, "rate": 80 },
+            { "id": "gold", "min": 150, "max": 300, "rate": 100 }
+          ],
+          "exp_reward": 25,
+          "recommended_level": 1
+        },
+        {
+          "id": "stage2",
+          "name": "สะพานโบราณ",
+          "desc": "ผ่าน Slime หลายตัว สู่พื้นที่ลึก",
+          "require_energy": 7,
+          "waves": [
+            {
+              "wave_no": 1,
+              "enemies": [
+                { "id": "slime_basic", "level": 2 },
+                { "id": "slime_basic", "level": 2 }
+              ]
+            }
+          ],
+          "unlocked_by": "stage1",
+          "drops": [
+            { "id": "exp_potion", "min": 1, "max": 2, "rate": 70 },
+            { "id": "gold", "min": 170, "max": 350, "rate": 100 }
+          ],
+          "exp_reward": 32,
+          "recommended_level": 2
+        },
+        {
+          "id": "stage3",
+          "name": "สนามทดสอบ",
+          "desc": "มอนสเตอร์กลุ่ม เริ่มท้าทายมากขึ้น",
+          "require_energy": 9,
+          "waves": [
+            {
+              "wave_no": 1,
+              "enemies": [
+                { "id": "slime_basic", "level": 3 },
+                { "id": "slime_basic", "level": 3 }
+              ]
+            },
+            {
+              "wave_no": 2,
+              "enemies": [
+                { "id": "slime_basic", "level": 4 },
+                { "id": "slime_basic", "level": 4 }
+              ]
+            }
+          ],
+          "unlocked_by": "stage2",
+          "drops": [
+            { "id": "exp_potion", "min": 2, "max": 2, "rate": 100 },
+            { "id": "rune_shard", "min": 1, "max": 1, "rate": 40 }
+          ],
+          "exp_reward": 48,
+          "recommended_level": 3
+        }
+      ]
+    }
+  ]
+}

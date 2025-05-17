@@ -1,0 +1,18 @@
+{
+  "logs": [
+    {
+      "user_id": "player1",
+      "time": 1717228300000,
+      "gacha_id": "premium_summon",
+      "char_id": "astra",
+      "rarity": 5
+    },
+    {
+      "user_id": "player2",
+      "time": 1717228400000,
+      "gacha_id": "premium_summon",
+      "char_id": "slime_basic",
+      "rarity": 3
+    }
+  ]
+}

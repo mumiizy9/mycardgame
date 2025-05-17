@@ -1,0 +1,45 @@
+{
+  "battle": {
+    "spd_bar_max": 100,
+    "spd_frame": 120,
+    "max_team": 4,
+    "max_monster": 4,
+    "show_crit_popup": true,
+    "ani_slide_duration": 350
+  },
+  "exp": {
+    "base_win": 60,
+    "base_lose": 18,
+    "exp_up_event": 1.0
+  },
+  "drop": {
+    "exp_potion_rate": 55,
+    "rune_shard_rate": 22,
+    "gold_rate": 80
+  },
+  "stat_curve": {
+    "hero_hp": 1.085,
+    "hero_atk": 1.08,
+    "hero_def": 1.09
+  },
+  "energy": {
+    "max": 45,
+    "regen_min": 12
+  },
+  "cooldown": {
+    "base_cd_reduce": 1,
+    "cd_reset_by_item": true
+  },
+  "limit": {
+    "max_inventory": 999,
+    "max_char_collection": 50,
+    "max_party": 4
+  },
+  "gacha": {
+    "pity_enabled": true,
+    "pity_count": 20,
+    "gacha_log_limit": 150
+  },
+  "file_version": "1.0.0",
+  "update": "2024-06-07"
+}
