@@ -1,114 +1,152 @@
-// js/auth.js - Epic Seven Card Battle - Auth/Login System (Frontend only)
-// Author: (yourname)
-// รองรับ admin, player, check session, call API user info
+// auth.js (Rewrite 2024/06) - Epic Seven Card Battle - NEW LOGIN SYSTEM
 
-let loginState = {
-    loggedIn: false,
-    isAdmin: false,
-    user: null
+// State
+let Auth = {
+    user: null,
+    isLoggedIn: false,
+    isAdmin: false
 };
-let users = [];
 
-async function loadUserList() {
-    if (users.length) return;
-    users = await fetch('data/user.json').then(res => res.json());
+let userTable = [];
+
+// ===== 1. โหลด user list จาก data/user.json =====
+async function fetchUserTable() {
+    if (userTable.length) return userTable;
+    try {
+        const res = await fetch('data/user.json');
+        userTable = await res.json();
+    } catch {
+        userTable = [];
+    }
+    return userTable;
 }
-function saveCurrentSession(user) {
+
+// ===== 2. บันทึก session (LocalStorage) =====
+function saveSession(user) {
     localStorage.setItem('user_id', user.id);
     localStorage.setItem('user_name', user.name);
     localStorage.setItem('user_is_admin', user.role === "admin" ? "1" : "0");
-    loginState = { loggedIn: true, isAdmin: user.role === "admin", user };
 }
 
 function clearSession() {
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
     localStorage.removeItem('user_is_admin');
-    loginState = { loggedIn: false, isAdmin: false, user: null };
 }
 
-// UI Login - Popup HTML
-function renderLoginPopup() {
+// ===== 3. ตรวจสอบ session ใน localStorage =====
+function readSession() {
+    let id = localStorage.getItem('user_id') || '';
+    let name = localStorage.getItem('user_name') || '';
+    let admin = localStorage.getItem('user_is_admin') === "1";
+    if (id && name) {
+        Auth = {
+            user: { id, name, role: admin ? "admin" : "player" },
+            isLoggedIn: true,
+            isAdmin: admin
+        };
+    } else {
+        Auth = { user: null, isLoggedIn: false, isAdmin: false };
+    }
+    // อัปเดตชื่อบน UI ถ้ามี
+    if (typeof setPlayerName === 'function') {
+        setPlayerName(Auth.isLoggedIn && Auth.user ? Auth.user.name : '');
+    }
+}
+readSession();
+
+// ===== 4. Popup ฟอร์ม Login =====
+function renderLoginForm() {
     return `
-    <div class="popup small">
-    <button class="close" onclick="closePopup()">×</button>
-    <h2>เข้าสู่ระบบ</h2>
-    <div id="loginErrorMsg" style="color:#f77;font-size:.9em;"></div>
-    <input id="auth_user_id" placeholder="User ID..." autocomplete="username"/>
-    <input id="auth_user_pw" type="password" placeholder="Password..." autocomplete="current-password" />
-    <button class="primary-btn" style="margin-top:1.1em;" onclick="doLoginNow()">ล็อกอิน</button>
-    <button class="secondary-btn" onclick="closePopup()" style="margin:1em 0 0 0;">ยกเลิก</button>
-    </div>
+        <div class="popup small" style="padding:1.3em 1.2em;">
+          <button class="close" onclick="closePopup()">×</button>
+          <h2 style="margin-bottom:.95em;">เข้าสู่ระบบ</h2>
+          <div id="loginMsg" style="color:#f66;font-size:.93em;margin-bottom:4px;"></div>
+          <input id="login_user" type="text" placeholder="User ID..." autocomplete="username" style="width:100%;margin-bottom:7px;">
+          <input id="login_pass" type="password" placeholder="Password..." autocomplete="current-password" style="width:100%;margin-bottom:16px;">
+          <button class="primary-btn" style="width:100%;margin-bottom:.6em;" onclick="doLogin()">
+              ล็อกอิน
+          </button>
+          <button class="secondary-btn" style="width:100%;" onclick="closePopup()">ยกเลิก</button>
+        </div>
     `;
 }
 
-// ตรวจ session (โหลดครั้งแรก)
-function checkSession() {
-    let userId = localStorage.getItem('user_id');
-    let userName = localStorage.getItem('user_name');
-    let isAdmin = localStorage.getItem('user_is_admin') === "1";
-    if (userId && userName) {
-        loginState = { loggedIn: true, isAdmin, user: { id: userId, name: userName, role: isAdmin ? "admin" : "player" } };
-    }
-    setPlayerName(loginState.loggedIn ? loginState.user.name : "");
-}
-
-// ปุ่มล็อกอินบน index
-document.addEventListener('DOMContentLoaded', () => {
-    checkSession();
-    let btn = document.getElementById('btnLogin');
-    if (btn) btn.onclick = openLoginPopup;
-    if (loginState.loggedIn) {
-        btn.textContent = "ออกจากระบบ";
-        btn.onclick = doLogout;
-    }
-    // อัปเดตชื่อผู้ใช้
-    setPlayerName(loginState.loggedIn ? loginState.user.name : "");
-});
-
-// เปิด popup ล็อกอิน
 window.openLoginPopup = async function () {
-    await loadUserList();
-    window.openPopup('login', renderLoginPopup(), 'small', 'เข้าสู่ระบบ');
-    setTimeout(() => document.getElementById('auth_user_id')?.focus(), 180);
-}
-// ปุ่ม "เข้าสู่ระบบ" จริง
-window.doLoginNow = async function () {
-    await loadUserList();
-    let id = document.getElementById('auth_user_id').value.trim();
-    let pw = document.getElementById('auth_user_pw').value;
-    let el = document.getElementById('loginErrorMsg');
-    let user = users.find(u =>
-        u.id === id && u.password === pw && u.enabled !== false
+    await fetchUserTable();
+    window.openPopup('login', renderLoginForm(), 'small', 'เข้าสู่ระบบ');
+    setTimeout(() => {
+        let el = document.getElementById('login_user');
+        if (el) el.focus();
+    }, 120);
+};
+
+// ===== 5. ฟังก์ชันล็อกอิน + ตรวจสอบ =====
+window.doLogin = async function () {
+    await fetchUserTable();
+    const inputId = document.getElementById('login_user').value.trim();
+    const inputPw = document.getElementById('login_pass').value;
+    const elMsg = document.getElementById('loginMsg');
+    const found = userTable.find(u =>
+        u.id === inputId && u.password === inputPw && u.enabled !== false
     );
-    if (user) {
-        saveCurrentSession(user);
-        setPlayerName(user.name);
+    if (found) {
+        saveSession(found);
+        readSession();
         closePopup();
         location.reload();
     } else {
-        el.innerText = "รหัสผ่านหรือชื่อผู้ใช้ไม่ถูกต้อง!";
+        if (elMsg) elMsg.innerText = 'ชื่อผู้ใช้หรือรหัสผ่านผิด!';
     }
-}
+};
 
-// ปุ่ม logout
+// ===== 6. Logout =====
 window.doLogout = function () {
     clearSession();
+    readSession();
     location.reload();
-}
+};
 
-// Helper สำหรับระบบ/JS อื่นดึง user ปัจจุบัน
+// ===== 7. Shortcut =====
 window.getCurrentUser = function () {
-    checkSession();
-    return loginState.user || null;
+    readSession();
+    return Auth.user;
 }
-
 window.isAdmin = function () {
-    checkSession();
-    return loginState.isAdmin;
+    readSession();
+    return Auth.isAdmin;
+}
+window.isLoggedIn = function () {
+    readSession();
+    return Auth.isLoggedIn;
 }
 
-window.isLoggedIn = function () {
-    checkSession();
-    return loginState.loggedIn;
-}
+// ===== 8. On load: set event handler/login button =====
+document.addEventListener('DOMContentLoaded', () => {
+    readSession();
+    let btn = document.getElementById('btnLogin');
+    if (btn) {
+        // Toggle text and func
+        if (Auth.isLoggedIn) {
+            btn.textContent = "ออกจากระบบ";
+            btn.onclick = window.doLogout;
+        } else {
+            btn.textContent = "เข้าสู่ระบบ";
+            btn.onclick = window.openLoginPopup;
+        }
+    }
+    // กำหนดชื่อ user
+    if (typeof setPlayerName === 'function') {
+        setPlayerName(Auth.isLoggedIn && Auth.user ? Auth.user.name : '');
+    }
+});
+
+// ===== 9. EXPORT (for legacy/compatibility) =====
+window.authEngine = {
+    user: () => getCurrentUser(),
+    isAdmin,
+    isLoggedIn,
+    login: window.doLogin,
+    logout: window.doLogout,
+    open: window.openLoginPopup
+};

@@ -1,0 +1,38 @@
+{
+  "id": "slime_earth",
+  "type": "monster",
+  "name": "Slime (Earth)",
+  "element": "earth",
+  "class": "knight",
+  "rarity": 3,
+  "star": 3,
+  "level": 1,
+  "level_max": 30,
+  "exp": 0,
+  "exp_max": 120,
+  "hp": 520,
+  "atk": 62,
+  "def": 55,
+  "spd": 64,
+  "crit_rate": 6,
+  "crit_dmg": 120,
+  "effectiveness": 0,
+  "resistance": 15,
+  "skills": [
+    {
+      "id": "slime_earth_s1",
+      "name": "Rock Body Slam",
+      "type": "attack",
+      "desc": "โจมตีเป้าหมายเดียว มีโอกาสเพิ่ม DEF ตัวเอง 1 เทิร์น",
+      "multiplier": 1.08,
+      "effect": {
+        "buff": [
+          { "type": "def_up", "turn": 1, "chance": 30 }
+        ]
+      },
+      "cooldown": 0
+    }
+  ],
+  "passive": "",
+  "img": "slime_earth.png"
+}

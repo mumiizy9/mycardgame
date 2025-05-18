@@ -10,11 +10,11 @@
   "level_max": 50,
   "exp": 0,
   "exp_max": 600,
-  "hp": 150064,
-  "atk": 1016,
-  "def": 59,
-  "spd": 1000,
-  "crit_rate": 15,
+  "hp": 1064,
+  "atk": 116,
+  "def": 56,
+  "spd": 68,
+  "crit_rate": 8,
   "crit_dmg": 150,
   "effectiveness": 0,
   "resistance": 20,
@@ -40,7 +40,7 @@
       "multiplier": 0,
       "effect": {
         "buff": [
-          { "type": "def_up", "turn": 1 }
+          { "type": "def_up", "turn": 2 }
         ]
       },
       "cooldown": 5
@@ -53,7 +53,7 @@
       "multiplier": 1.7,
       "effect": {
         "debuff": [
-          { "type": "stun", "turn": 3, "chance": 50 }
+          { "type": "stun", "turn": 2, "chance": 50 }
         ]
       },
       "cooldown": 3

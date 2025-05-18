@@ -5,8 +5,8 @@
 // รองรับ energy bar, ลด/เพิ่มระหว่างเล่นดันเจี้ยน, รีเซ็ต, ใช้ item, ป็อปอัป เติม/แจ้งหมด, อัปเดต UI อัตโนมัติ
 // สามารถ sync กับ LocalStorage หรือ API/JSON ในอนาคตได้
 
-const DEFAULT_MAX_ENERGY = 45;     // cap ค่า default
-const REGEN_INTERVAL_MIN = 12;     // 1 energy ต่อกี่นาที? (12 นาที = 5/ชม)
+const DEFAULT_MAX_ENERGY = 165;     // cap ค่า default
+const REGEN_INTERVAL_MIN = 1;     // 1 energy ต่อกี่นาที?
 const REGEN_AMOUNT    = 1;
 const REGEN_TICK_MS   = 60 * 1000; // 1 นาที/loop (ปรับเป็น 10 วิ/DEV ได้)
 const ENERGY_ITEM_IDS = ['heal_potion']; // ใช้ heal_potion เติม energy ได้
@@ -103,7 +103,7 @@ function openEnergyDetailPopup() {
         <div style="color:#bdf;">${energy < max ? `จะฟื้น +1 energy ในอีก <b>${minLeft}</b> นาที` : 'เต็มสูงสุดแล้ว'}</div>
         <hr style="margin:12px 0;" />
         <button class="primary-btn" style="margin-bottom:6px;" onclick="refillEnergyWithItem()">ใช้ Heal Potion เพิ่ม Energy</button>
-        <div style="font-size:.95em;color:#7cf;">Heal Potion = +15 Energy</div>
+        <div style="font-size:.95em;color:#7cf;">Heal Potion = +30 Energy</div>
         <hr style="margin:12px 0;" />
         <button class="secondary-btn" onclick="closePopup()">ปิด</button>
       </div>

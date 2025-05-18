@@ -1,0 +1,38 @@
+{
+  "id": "slime_fire",
+  "type": "monster",
+  "name": "Slime (Fire)",
+  "element": "fire",
+  "class": "warrior",
+  "rarity": 3,
+  "star": 3,
+  "level": 1,
+  "level_max": 30,
+  "exp": 0,
+  "exp_max": 120,
+  "hp": 410,
+  "atk": 93,
+  "def": 26,
+  "spd": 74,
+  "crit_rate": 12,
+  "crit_dmg": 130,
+  "effectiveness": 0,
+  "resistance": 5,
+  "skills": [
+    {
+      "id": "slime_fire_s1",
+      "name": "Fire Splash",
+      "type": "attack",
+      "desc": "โจมตีเป้าหมายเดียว มีโอกาสติด Burn 1 เทิร์น",
+      "multiplier": 1.12,
+      "effect": {
+        "debuff": [
+          { "type": "burn", "turn": 1, "chance": 30 }
+        ]
+      },
+      "cooldown": 0
+    }
+  ],
+  "passive": "",
+  "img": "slime_fire.png"
+}

@@ -1,187 +1,275 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Epic Seven Card Auto Battle</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="icon" href="favicon.ico" />
-    <style>
-      #mainBattlefield.hide { display:none; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Epic Seven Card Auto Battle</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="favicon.ico" />
+  <style>
+    #mainBattlefield.hide { display: none; }
+    /* Login Overlay */
+    #loginOverlay {
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(13,17,32,0.96);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: opacity .2s;
+      font-family: 'Prompt', 'Sarabun', Arial, sans-serif;
+    }
+    #loginOverlay.hide {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+    #loginBox {
+      background: #24293b;
+      padding: 2.3em 2.5em 2em 2.5em;
+      border-radius: 18px;
+      max-width: 350px;
+      width: 100%;
+      box-shadow: 0 0 54px #1ad7db44;
+      text-align: center;
+    }
+    #loginBox h1 {
+      color: #3fa8ff;
+      letter-spacing: 1px;
+      margin-bottom: 0.65em;
+      font-weight: bold;
+    }
+    #loginBox input {
+      width: 90%;
+      margin-bottom: 1em;
+    }
+    #loginBox .primary-btn {
+      width: 100%;
+    }
+    #loginBox .error {
+      color: #ff767b;
+      margin-bottom: .7em;
+      font-size: 1em;
+      min-height: 1.5em;
+    }
+    @media (max-width: 480px) {
+      #loginBox {
+        max-width: 98vw;
+        padding: 1.2em .7em 1.3em .7em;
+      }
+      #loginOverlay { font-size: .95em; }
+    }
+  </style>
 </head>
 <body class="dark-bg">
-    <!-- NAVBAR -->
-    <header>
-        <nav class="navbar">
-            <div class="logo">EPIC Seven - Card Battle</div>
-            <ul class="menu">
-                <li>
-                    <!-- เปลี่ยนเป็นลิงก์ไป team.html -->
-                    <button id="btnTeam" onclick="window.location.href='team.html'">จัดทีม</button>
-                </li>
-                <li>
-                    <button id="btnBattle">ต่อสู้</button>
-                </li>
-                <li>
-                    <button id="btnInventory" onclick="openPopup('inventory')">คลังไอเท็ม</button>
-                </li>
-                <li>
-                    <button id="btnQuest" onclick="openPopup('quest')">เควสต์</button>
-                </li>
-                <li>
-                    <button id="btnShop" onclick="openPopup('shop')">ร้านค้า</button>
-                </li>
-                <li>
-                    <button id="btnGacha" onclick="openPopup('gacha')">กาชา</button>
-                </li>
-                <li>
-                    <button id="btnCharacter" onclick="openPopup('characterCollection')">คลังตัวละคร</button>
-                </li>
-                <li>
-                    <button id="btnAnnouncement" onclick="openPopup('announcement')">ประกาศ</button>
-                </li>
-                <li>
-                    <button id="btnChat" onclick="openPopup('chat')">แชท</button>
-                </li>
-                <li>
-                    <button id="btnLogin" onclick="openPopup('login')">เข้าสู่ระบบ</button>
-                </li>
-            </ul>
-            <div class="profile">
-                <span id="playerName"></span>
-                <button id="btnLogin" onclick="openPopup('login')">เข้าสู่ระบบ</button>
-            </div>
-        </nav>
-    </header>
 
-    <!-- POPUP LAYER (ทุก feature เป็น popup ไม่ reload หน้า/เลื่อน) -->
-    <div id="popupLayer"></div>
+  <!-- NAVBAR -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">EPIC Seven - Card Battle</div>
+      <ul class="menu">
+        <li><button id="btnTeam" onclick="window.location.href='team.html'">จัดทีม</button></li>
+        <li><button id="btnStage" onclick="openStageMapPopup()">ผจญภัย</button></li>
+        <li><button id="btnInventory" onclick="openPopup('inventory')">คลังไอเท็ม</button></li>
+        <li><button id="btnQuest" onclick="openPopup('quest')">เควสต์</button></li>
+        <li><button id="btnShop" onclick="openPopup('shop')">ร้านค้า</button></li>
+        <li><button id="btnGacha" onclick="openPopup('gacha')">กาชา</button></li>
+        <li><button id="btnCharacter" onclick="openPopup('characterCollection')">คลังตัวละคร</button></li>
+        <li><button id="btnAnnouncement" onclick="openPopup('announcement')">ประกาศ</button></li>
+        <li><button id="btnChat" onclick="openPopup('chat')">แชท</button></li>
+        <li><button id="btnLogin" onclick="openPopup('login')">เข้าสู่ระบบ</button></li>
+      </ul>
+      <div class="profile">
+        <span id="playerName"></span>
+        <button id="btnLoginProfile" onclick="openPopup('login')">เข้าสู่ระบบ</button>
+      </div>
+    </nav>
+  </header>
 
-    <!-- MAIN BATTLE FIELD (ซ่อนอยู่จนกด "ต่อสู้") -->
-    <main id="mainBattlefield" class="hide">
-        <section class="battlefield">
-            <!-- PLAYER TEAM (4 ใบ) -->
-            <div class="card-row user">
-                <!-- card generation by JS -->
-            </div>
-            <!-- MONSTER TEAM (4 ใบ) -->
-            <div class="card-row monster">
-                <!-- card generation by JS -->
-            </div>
-            <!-- SPD BARS -->
-            <div class="spd-bar-container">
-                <!-- generated by JS -->
-            </div>
-        </section>
-        <section class="battle-controls">
-            <button id="btnStartAuto" class="primary-btn">Auto Battle</button>
-            <button id="btnBack" class="secondary-btn">กลับ</button>
-        </section>
-    </main>
+  <!-- POPUP LAYER -->
+  <div id="popupLayer"></div>
 
-    <!-- FOOTER -->
-    <footer>
-        <small style="color: #aaa;">© 2024 - Epic Seven Fan Project Demo Frontend</small>
-        <div id="footerLangMenu" style="margin-top:8px; text-align:center;"></div>
-    </footer>
+  <!-- MAIN BATTLE FIELD (will be opened by js/stage.js only) -->
+  <main id="mainBattlefield" class="hide">
+    <section class="battlefield">
+      <div class="card-row user"></div>
+      <div class="card-row monster"></div>
+      <div class="spd-bar-container"></div>
+    </section>
+    <section class="battle-controls">
+      <button id="btnStartAuto" class="primary-btn">Auto Battle</button>
+      <button id="btnBack" class="secondary-btn">กลับ</button>
+    </section>
+  </main>
 
-    <!-- JS -->
-    <!-- (แนะนำ popupManager.js ไว้บน js ฟีเจอร์ เพื่อให้ openPopup เรียกได้ก่อน) -->
-    <script src="js/popupManager.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/reward.js"></script>
-    <script src="js/team.js"></script>
-    <script src="js/battle.js"></script>
-    <script src="js/ai.js"></script>
-    <script src="js/animationEngine.js"></script>
-    <script src="js/effect.js"></script>
-    <script src="js/result.js"></script>
-    <script src="js/inventory.js"></script>
-    <script src="js/upgrade.js"></script>
-    <script src="js/rune.js"></script>
-    <script src="js/gacha.js"></script>
-    <script src="js/quest.js"></script>
-    <script src="js/stage.js"></script>
-    <script src="js/shop.js"></script>
-    <script src="js/announcement.js"></script>
-    <script src="js/redeem.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/characterCollection.js"></script>
-    <script src="js/passive.js"></script>
-    <script src="js/chat.js"></script>
-    <script src="js/gachaLog.js"></script>
-    <script src="js/energy.js"></script>
-    <script src="js/localization.js"></script>
-   
-    <!-- Map ปุ่มเมนูให้ป๊อปอัป (ยกเว้น btnTeam ที่ redirect) -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        // Helper function global สำหรับ set ชื่อผู้เล่นและ noti dot
-        window.setPlayerName = function (name) {
-          var el = document.getElementById('playerName');
-          if (el) el.textContent = name || '';
-        };
-        window.setMenuNoti = function (btnId, show) {
-          var btn = document.getElementById(btnId);
-          if (btn) {
-            if (show) btn.classList.add('noti');
-            else btn.classList.remove('noti');
-          }
-        };
-        // Map ปุ่มเมนูอื่นๆ เฉพาะที่ไม่ได้ระบุ onclick
-        var menu = [
-            ['btnInventory',   'inventory'],
-            ['btnQuest',       'quest'],
-            ['btnShop',        'shop'],
-            ['btnGacha',       'gacha'],
-            ['btnCharacter',   'characterCollection'],
-            ['btnAnnouncement','announcement'],
-            ['btnChat',        'chat'],
-            ['btnLogin',       'login']
-        ];
-        menu.forEach(function(pair){
-          var btn = document.getElementById(pair[0]);
-          if (btn && !btn.onclick) btn.onclick = function(){ openPopup(pair[1]); };
-        });
+  <!-- FOOTER -->
+  <footer>
+    <small style="color: #aaa;">© 2024 - Epic Seven Fan Project Demo Frontend</small>
+    <div id="footerLangMenu" style="margin-top:8px;text-align:center;"></div>
+  </footer>
 
-        // --------- เฉพาะ BATTLE MENU ---------
-        var btnBattle = document.getElementById('btnBattle');
-        var mainBattle = document.getElementById('mainBattlefield');
-        if (btnBattle && mainBattle) {
-          btnBattle.onclick = async function(){
-            // โชว์ mainBattlefield
-            mainBattle.classList.remove('hide');
+  <!-- Login Overlay (show before login) -->
+  <div id="loginOverlay">
+    <div id="loginBox">
+      <h1>เข้าสู่ระบบ</h1>
+      <div class="error" id="loginError"></div>
+      <input id="login_user" type="text" placeholder="User ID..." autocomplete="username" autofocus maxlength="32" />
+      <input id="login_pass" type="password" placeholder="Password..." autocomplete="current-password" maxlength="32" />
+      <button class="primary-btn" onclick="doMainLogin()">ล็อกอิน</button>
+      <div style="margin-top:1.2em;color:#aaa;font-size:.94em;">© 2024 All Rights Reserved.</div>
+    </div>
+  </div>
 
-            // load and prepare battlefield (ตาม battle.js ของคุณ)
-            if (window.battleEngine && battleEngine.loadBattleTeams) {
-              await battleEngine.loadBattleTeams();
-              battleEngine.initSpdBar();
-              battleEngine.renderBattlefield();
-              // จะให้เริ่มออโต้เลยมั้ย? ถ้าใช่ใส่ battleEngine.startBattle();
-            }
-          };
-        }
+  <!-- JS (all original scripts must still work!) -->
+  <script src="js/popupManager.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/reward.js"></script>
+  <script src="js/team.js"></script>
+  <script src="js/battle.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/animationEngine.js"></script>
+  <script src="js/effect.js"></script>
+  <script src="js/result.js"></script>
+  <script src="js/inventory.js"></script>
+  <script src="js/upgrade.js"></script>
+  <script src="js/rune.js"></script>
+  <script src="js/gacha.js"></script>
+  <script src="js/quest.js"></script>
+  <script src="js/stage.js"></script>
+  <script src="js/shop.js"></script>
+  <script src="js/announcement.js"></script>
+  <script src="js/redeem.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/characterCollection.js"></script>
+  <script src="js/passive.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/gachaLog.js"></script>
+  <script src="js/energy.js"></script>
+  <script src="js/localization.js"></script>
 
-        // ปุ่ม Auto Battle = เริ่ม start เลย
-        var btnAuto = document.getElementById('btnStartAuto');
-        if(btnAuto){
-          btnAuto.onclick = function(){
-            if(window.battleEngine && battleEngine.startBattle){
-              battleEngine.startBattle();
-            }
-          };
-        }
+  <script>
+  // ========== LOGIN OVERLAY SYSTEM ==========
+  // (minimal, after all scripts loaded to avoid busting old code)
+  async function checkLoginState() {
+    // Use same as auth.js logic
+    let uid = localStorage.getItem('user_id');
+    let uname = localStorage.getItem('user_name');
+    let isLoggedIn = !!uid && !!uname;
+    const overlay = document.getElementById('loginOverlay');
+    if (isLoggedIn) {
+      overlay.classList.add('hide');
+      document.body.style.overflow = '';
+      window.setPlayerName && setPlayerName(uname);
+      // Lock Profile/Logout event
+      let btn = document.getElementById('btnLoginProfile');
+      if (btn) {
+        btn.textContent = "ออกจากระบบ";
+        btn.onclick = doMainLogout;
+      }
+      // ... update all UI as logged in (optional)
+    } else {
+      // Show overlay, lock scroll
+      overlay.classList.remove('hide');
+      document.body.style.overflow = 'hidden';
+      let btn = document.getElementById('btnLoginProfile');
+      if (btn) {
+        btn.textContent = "เข้าสู่ระบบ";
+        btn.onclick = openLoginPopup;
+      }
+    }
+  }
+  // On page load
+  document.addEventListener('DOMContentLoaded', checkLoginState);
 
-        // ปุ่ม "กลับ" = ซ่อนสนามรบ
-        var btnBack = document.getElementById('btnBack');
-        if(btnBack){
-          btnBack.onclick = function(){
-            mainBattle.classList.add('hide');
-            // เพิ่ม stop/clear หรือ reset state ถ้ามีในระบบของคุณ
-          };
-        }
+  // On manual logout
+  function doMainLogout() {
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_is_admin');
+    checkLoginState();
+    location.reload();
+  }
+
+  // Main Login Handler (Pure, does NOT call popupManager)
+  async function doMainLogin() {
+    const inputId = document.getElementById('login_user').value.trim();
+    const inputPw = document.getElementById('login_pass').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.innerHTML = '';
+    // Fetch user list
+    let users = [];
+    try {
+      users = await fetch('data/user.json').then(r => r.json());
+    } catch {}
+    const found = users.find(u => u.id === inputId && u.password === inputPw && u.enabled !== false);
+    if (found) {
+      localStorage.setItem('user_id', found.id);
+      localStorage.setItem('user_name', found.name);
+      localStorage.setItem('user_is_admin', found.role === "admin" ? "1" : "0");
+      errorEl.innerHTML = '';
+      checkLoginState();
+      // Reload to ensure all except overlay works fine
+      setTimeout(() => location.reload(), 220);
+    } else {
+      errorEl.innerHTML = 'ชื่อผู้ใช้หรือรหัสผ่านผิด!';
+    }
+  }
+
+  // Press Enter = login
+  document.addEventListener('DOMContentLoaded', () => {
+    const pass = document.getElementById('login_pass');
+    if (pass) {
+      pass.addEventListener('keypress', function(evt){
+        if (evt.key === "Enter") doMainLogin();
       });
-    </script>
+    }
+    const user = document.getElementById('login_user');
+    if (user) {
+      user.addEventListener('keypress', function(evt){
+        if (evt.key === "Enter") doMainLogin();
+      });
+    }
+  });
+
+  // login popup (shortcut for menu)
+  function openLoginPopup() {
+    document.getElementById('loginOverlay').classList.remove('hide');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Guard All Actions: If not logged in, block nav/button AJAX/event except login overlay
+  document.addEventListener('DOMContentLoaded', () => {
+    // Intercept all major menu/buttons
+    function guard(event) {
+      // allow if overlay is HIDE (=already login)
+      if (!document.getElementById('loginOverlay').classList.contains('hide')) {
+        event.preventDefault();
+        event.stopPropagation();
+        openLoginPopup();
+        return false;
+      }
+      return true;
+    }
+    // All main menu buttons
+    const ids = [
+      'btnTeam','btnStage','btnInventory','btnQuest','btnShop','btnGacha','btnCharacter','btnAnnouncement','btnChat'
+    ];
+    ids.forEach(id=>{
+      let btn = document.getElementById(id);
+      if (btn) btn.addEventListener('click', guard, true);
+    });
+    // Battle/autoplay/etc
+    let autoBtn = document.getElementById('btnStartAuto');
+    if (autoBtn) autoBtn.addEventListener('click', guard, true);
+  });
+
+  // Recheck always
+  window.checkLoginState = checkLoginState;
+  window.doMainLogin = doMainLogin;
+  window.doMainLogout = doMainLogout;
+  </script>
 </body>
 </html>

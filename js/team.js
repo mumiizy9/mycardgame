@@ -1,49 +1,69 @@
 // js/team.js
 
 const maxTeam = 4;
+const baseCharIds = ['astra', 'slime_earth', 'slime_fire', 'slime_water'];
 
-let allChars = [];   // ทั้งหมดที่ผู้เล่นมี
-let team = [];       // id ตัวที่เลือก
+let allChars = []; // All user-owned char (metadata, not just id)
+let team = [];     // Current team (ids, max length 4)
 
 /**
- * โหลดตัวละครจากไฟล์ (mock: as static, ในโปรดักชัน fetch จริง)
+ * Ensure user has at least 4 base characters in their collection.
+ * If there's no char_collection, or empty, will add defaults.
  */
-async function loadCharacters() {
-    // สมมติ user มี asra กับ slime_basic (เพิ่มได้ในภายหลัง)
-    let charIds = ['astra', 'slime_basic'];
-    let res = await Promise.all(
-        charIds.map(id => fetch(`data/char/${id}.json`).then(r => r.json()))
-    );
-    allChars = res;
+function ensureBaseCollection() {
+    let stored = localStorage.getItem('char_collection');
+    let arr = [];
+    if (stored && stored.startsWith('[')) {
+        try { arr = JSON.parse(stored); } catch { arr = []; }
+    }
+    let changed = false;
+    if (!Array.isArray(arr)) arr = [];
+    baseCharIds.forEach(id => { if (!arr.includes(id)) { arr.push(id); changed = true; } });
+    if (!stored || changed) localStorage.setItem('char_collection', JSON.stringify(arr));
+    return arr;
 }
 
 /**
- * โหลดทีมจาก LocalStorage
+ * Load character meta from user collection (char_collection)
+ */
+async function loadCharacters() {
+    let charIds = ensureBaseCollection();
+    const metas = await Promise.all(
+        charIds.map(id => fetch(`data/char/${id}.json`).then(r => r.json()).catch(() => null))
+    );
+    allChars = metas.filter(Boolean); // only those found in meta
+}
+
+/**
+ * Load team from LocalStorage
  */
 function loadTeam() {
     let t = localStorage.getItem('userTeam');
     if (!t) team = [];
     else team = JSON.parse(t);
+    // Remove team member if not in current owned char
+    let userCharIds = allChars.map(c => c.id);
+    team = team.filter(id => userCharIds.includes(id));
 }
 
 /**
- * เซฟทีมลง LocalStorage
+ * Save team to LocalStorage (max 4, only ids in collection)
  */
 function saveTeam() {
-    const cleanTeam = team.filter(id => !!id); // แก้ไข: กรอง id ที่มีจริงเท่านั้น
-    localStorage.setItem('userTeam', JSON.stringify(cleanTeam)); // ใช้ cleanTeam
+    team = team.filter(id => id && allChars.some(c => c.id === id));
+    localStorage.setItem('userTeam', JSON.stringify(team));
     alert("บันทึกทีมสำเร็จ!");
 }
 
 /**
- * render UI slot ทีม (สูงสุด 4)
+ * Render team slot bar
  */
 function renderTeamBar() {
     const el = document.getElementById('teamSlotBar');
-    if (!el) return; // แก้ไข: ป้องกันกรณี element ไม่เจอ
+    if (!el) return;
     el.innerHTML = '';
     for (let i = 0; i < maxTeam; i++) {
-        let char = allChars.find(c=>c.id===team[i]);
+        let char = allChars.find(c => c.id === team[i]);
         let slot = document.createElement('div');
         slot.className = 'card';
         slot.style.minHeight = "140px";
@@ -63,14 +83,13 @@ function renderTeamBar() {
 }
 
 /**
- * render คลังตัวละคร ดึงจาก allChars ทั้งหมด
+ * Render character collection below the team area, drag-to-add
  */
 function renderCharCollection() {
     const el = document.getElementById('charCollection');
-    if (!el) return; // แก้ไข: ป้องกันกรณี element ไม่เจอ
+    if (!el) return;
     el.innerHTML = '';
     allChars.forEach(c => {
-        // ถ้ามีในทีมแล้ว ไม่ให้ลากซ้ำ
         let inTeam = team.includes(c.id);
         let div = document.createElement('div');
         div.className = 'card';
@@ -82,58 +101,61 @@ function renderCharCollection() {
             <div class="name">${c.name}</div>
             <div style="font-size:.92em;margin-bottom:3px;">Lv.${c.level} &nbsp; <small class="stat-bar">${c.hp} HP</small></div>
         `;
-        // Popover info
-        div.addEventListener('click', e=>{
-            openCharInfoPopup(c);
-        });
+        // Show popup info on click
+        div.addEventListener('click', e => { openCharInfoPopup(c); });
+
         // Drag: เลือกใส่ทีม
-        div.addEventListener('dragstart', ev=>{
+        div.addEventListener('dragstart', ev => {
             ev.dataTransfer.setData("text/plain", c.id);
         });
+
         el.appendChild(div);
     });
-    // ทีมรับ event drop
+
+    // Team slot: drag over/drop
     const teamSlots = document.querySelectorAll('#teamSlotBar .card');
-    teamSlots.forEach(slot=>{
-        slot.ondragover = e=>{e.preventDefault(); slot.style.borderColor='#49cfffa8';}
-        slot.ondragleave = e=>{slot.style.borderColor='';}
-        slot.ondrop = function(e){
+    teamSlots.forEach(slot => {
+        slot.ondragover = e => { e.preventDefault(); slot.style.borderColor = '#49cfffa8'; };
+        slot.ondragleave = e => { slot.style.borderColor = ''; };
+        slot.ondrop = function(e) {
             e.preventDefault();
             let dragId = e.dataTransfer.getData("text/plain");
             let idx = Number(slot.dataset.idx);
-            // กรองซ้ำ
-            if (team.includes(dragId)) return;
-            team[idx] = dragId;
-            saveTeam();
-            renderTeamBar();
-            renderCharCollection();
+            // only if not in team and exists in collection
+            if (!team.includes(dragId) && allChars.some(ch => ch.id === dragId)) {
+                team[idx] = dragId;
+                saveTeam();
+                renderTeamBar();
+                renderCharCollection();
+            }
         }
     });
 }
 
 /**
- * Remove ตัวจากทีม
+ * Remove character from team by slot index
  */
-window.removeFromTeam = function(idx){
+window.removeFromTeam = function(idx) {
     team[idx] = undefined;
-    renderTeamBar(); renderCharCollection();
+    renderTeamBar();
+    renderCharCollection();
 }
 
 /**
- * Pop-up info ตัวละคร
+ * Popup: Character info
  */
-function openCharInfoPopup(char){
+function openCharInfoPopup(char) {
     closePopup();
-    window.openPopup('charInfo', {char});
+    window.openPopup('charInfo', {
+        char
+    });
 }
 
-/**
- * เพิ่ม template popup สำหรับดูรายละเอียดตัวละคร
- */
-(function(){
+// Patch: Add charInfo popup template for UI
+(function () {
     const origRenderPopup = window.renderPopup;
-    window.renderPopup = function(type, data){
-        if(type=="charInfo" && data && data.char){
+    window.renderPopup = function (type, data) {
+        if (type === "charInfo" && data && data.char) {
             const c = data.char;
             return `<div class="popup" style="min-width:285px;">
                 <button class="close" onclick="closePopup()">×</button>
@@ -144,7 +166,7 @@ function openCharInfoPopup(char){
                 <div><b>HP</b> ${c.hp} &nbsp; <b>ATK</b> ${c.atk} &nbsp; <b>DEF</b> ${c.def}</div>
                 <div><b>SPD</b> ${c.spd} &nbsp; <b>CRIT%:</b> ${c.crit_rate}</div>
                 <div><b>Skills</b>:</div>
-                <ul>${c.skills.map(s=> `<li><b>${s.name}</b>: ${s.desc}</li>`).join('')}</ul>
+                <ul>${c.skills.map(s => `<li><b>${s.name}</b>: ${s.desc}</li>`).join('')}</ul>
             </div>`;
         }
         return origRenderPopup(type, data);
@@ -152,25 +174,25 @@ function openCharInfoPopup(char){
 })();
 
 /**
- * กดปุ่มบันทึก
+ * Save team button
  */
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', () => {
     const btnSaveTeam = document.getElementById('btnSaveTeam');
-    if (btnSaveTeam) btnSaveTeam.onclick = saveTeam; // แก้ไข: ป้องกันกรณี element ไม่เจอ
+    if (btnSaveTeam) btnSaveTeam.onclick = saveTeam;
 });
 
 /**
- * กลับหน้าหลัก
+ * Back button - return to homepage
  */
 const btnBack = document.getElementById('btnBack');
-if (btnBack) btnBack.onclick = ()=>{ window.location.href = 'index.html'; } // แก้ไข: ป้องกันกรณี element ไม่เจอ
+if (btnBack) btnBack.onclick = () => { window.location.href = 'index.html'; }
 
 /**
- * INITIALIZE
+ * Initialize: load all step
  */
-(async()=>{
+(async () => {
     await loadCharacters();
-    loadTeam();
+    loadTeam(); // after allChars loaded
     renderTeamBar();
     renderCharCollection();
 })();

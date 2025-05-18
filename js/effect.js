@@ -1,123 +1,138 @@
-// js/effect.js
+// effect.js - Rewrite ver (by GPT-4, 2024)
+// Epic Seven Card Battle: Effect System (Buff/Debuff/Heal/Process Turn/Stack)
+// ออกแบบใหม่ ไม่ใช้โค้ดเดิม (คลีนและอ่านง่ายกว่าเดิม)
+// ใช้ร่วมกับ: battle.js, ai.js, animationEngine.js
 
 /**
- * ระบบบัฟ/ดีบัฟ/ฮีล Auto Battle Engine (Epic Seven Version)
- * รองรับ: Buff, Debuff, Immunity, Stack, Countdown Turn, Remove, Tooltip
- * เรียกใช้ได้จาก battle.js, ai.js, animationEngine.js
- */
-
-/**
- * เพิ่มสถานะ (Buff/Debuff) ให้กับ character
+ * เพิ่มสถานะ (Buff หรือ Debuff) ให้ character
  * @param {Object} target - ตัวละครเป้าหมาย
- * @param {Array<Object>} effects - [{type, turn, [chance]}]
- * @param {string} effectType - 'buff' หรือ 'debuff'
+ * @param {Array|Object} effects - [{type, turn, chance}]
+ * @param {String} effectType - 'buff' หรือ 'debuff'
  */
-function addEffect(target, effects, effectType) {
-    if (!effects || !Array.isArray(effects)) return;
+function addEffectV2(target, effects, effectType) {
+  if (!target || !effects) return;
+  if (!Array.isArray(effects)) effects = [effects];
 
-    for (let eff of effects) {
-        // Anti-stack: debuff/buff แบบ non-stack
-        if (effectType === "buff") {
-            if (target.buffs.some(b => b.type === eff.type)) continue;
-        } else if (effectType === "debuff") {
-            if (target.debuffs.some(b => b.type === eff.type)) continue;
-        }
-        // Immunity: หากติด immunity (multi N turn) จะกันดีบัฟ (ยกเว้น stun/burn ฯ)
-        if (effectType === "debuff" && (target.buffs || []).some(b => b.type === "immune" && b.turn > 0)) {
-            continue;
-        }
-        // Stackable Debuff (เช่น poison) *Option
-        // เพิ่มสามารถ stack ได้หาก type เป็น poison/burn
-        if (effectType === "debuff" && ["poison", "burn"].includes(eff.type)) {
-            target.debuffs.push({...eff});
-            continue;
-        }
-        // เพิ่มสถานะ
-        if (effectType === "buff") target.buffs.push({...eff});
-        else if (effectType === "debuff") target.debuffs.push({...eff});
+  // Ensure buffs/debuffs field
+  if (!target.buffs) target.buffs = [];
+  if (!target.debuffs) target.debuffs = [];
+
+  for (const effect of effects) {
+    if (!effect || !effect.type) continue;
+
+    // Immunity (debuff only)
+    if (
+      effectType === "debuff" &&
+      Array.isArray(target.buffs) &&
+      target.buffs.some(b => b.type === "immune" && b.turn && b.turn > 0)
+    ) {
+      // ยกเว้น stun/burn/poison ยังติด
+      if (!["stun", "burn", "poison"].includes(effect.type)) continue;
     }
+
+    // Non-stack (default), Stackable (burn/poison)
+    let canStack = ["burn", "poison"].includes(effect.type);
+    let existing =
+      effectType === "buff"
+        ? target.buffs.find(b => b.type === effect.type)
+        : target.debuffs.find(d => d.type === effect.type);
+
+    if (!canStack && existing) continue;
+
+    // Chance
+    if (typeof effect.chance === "number") {
+      if (Math.random() * 100 > effect.chance) continue; // Failed to proc
+    }
+
+    let effObj = { ...effect };
+    // (clone, so each has separate turn etc)
+    if (effectType === "buff") target.buffs.push(effObj);
+    else target.debuffs.push(effObj);
+  }
 }
 
 /**
- * ทุกครั้งที่เริ่ม turn หรือตัวละคร เขียนสำหรับลด countdown & remove state หมดอายุ
- * @param {Object} char - ตัวละคร
- */
-function processStatusTurn(char) {
-    ['buffs', 'debuffs'].forEach(listType => {
-        if (!char[listType]) return;
-        for (let i = char[listType].length - 1; i >= 0; i--) {
-            let st = char[listType][i];
-            // ลดจำนวน turn
-            if (st.turn && st.turn > 0) st.turn--;
-            // เอาออกถ้าหมดอายุ
-            if (st.turn === 0) char[listType].splice(i, 1);
-        }
-    });
-    // Heal Over Time (HoT)/Poison/Burn
-    if (char.debuffs) {
-        char.debuffs.forEach(df => {
-            if (df.type === "poison") {
-                let val = Math.round(char.hp * 0.05);
-                char.currHp = Math.max(0, char.currHp - val);
-                window.showDamage?.(char.index || 0, char.side || 'hero', val, "#ffd155");
-            }
-            if (df.type === "burn") {
-                let val = Math.round(char.hp * 0.12);
-                char.currHp = Math.max(0, char.currHp - val);
-                window.showDamage?.(char.index || 0, char.side || 'hero', val, "#ff6633");
-            }
-        });
-    }
-    if (char.buffs) {
-        char.buffs.forEach(bf => {
-            if (bf.type === "heal_ot") { // Heal over time
-                let val = Math.round(char.hp * 0.06);
-                char.currHp = Math.min(char.hp, char.currHp + val);
-                window.showDamage?.(char.index || 0, char.side || 'hero', -val, "#24eeba");
-            }
-        });
-    }
-}
-
-/**
- * เช็คว่าตัวนี้โดน Stun หรือ Debuff Skip Turn อยู่หรือไม่
- */
-function isStunnedOrSkipped(char) {
-    return (char.debuffs || []).some(df => ["stun", "sleep", "freeze", "silence"].includes(df.type));
-}
-
-/**
- * ลบสถานะ buff/debuff ทั้งหมด (Cleanse/Purge) หรือกำหนด
+ * เมื่อเริ่ม turn ใหม่ หรือเปลี่ยนเทิร์น เรียกเพื่อลด turn & trigger effect
  * @param {Object} char
- * @param {string} [type] "buff"/"debuff"/"all" (default: all)
  */
-function removeStatus(char, type = "all") {
-    if (!char) return;
-    if (type === "all") {
-        char.buffs = [];
-        char.debuffs = [];
+function processStatusEachTurn(char) {
+  if (!char) return;
+  ["buffs", "debuffs"].forEach(group => {
+    if (!Array.isArray(char[group])) return;
+    // countdown
+    for (let i = char[group].length - 1; i >= 0; i--) {
+      let st = char[group][i];
+      if (typeof st.turn === "number" && st.turn > 0) st.turn--;
+      // Remove if expired
+      if (st.turn === 0) char[group].splice(i, 1);
     }
-    if (type === "buff") char.buffs = [];
-    if (type === "debuff") char.debuffs = [];
+  });
+
+  // === ACTIVE EFFECTS ===
+  // Debuff: Poison/Burn
+  if (Array.isArray(char.debuffs)) {
+    char.debuffs.forEach(d => {
+      if (d.type === "poison") {
+        let val = Math.max(1, Math.round(char.hp * 0.05));
+        char.currHp = Math.max(0, char.currHp - val);
+        showStatusPopup(char, -val, "#ffea80"); // yellow
+      }
+      if (d.type === "burn") {
+        let val = Math.max(1, Math.round(char.hp * 0.12));
+        char.currHp = Math.max(0, char.currHp - val);
+        showStatusPopup(char, -val, "#ff6100");
+      }
+    });
+  }
+  // Buff: Heal Over Time
+  if (Array.isArray(char.buffs)) {
+    char.buffs.forEach(b => {
+      if (b.type === "heal_ot") {
+        let val = Math.max(1, Math.round(char.hp * 0.06));
+        char.currHp = Math.min(char.hp, char.currHp + val);
+        showStatusPopup(char, val, "#2ae5a4");
+      }
+    });
+  }
 }
 
 /**
- * เรียกใน UI เพื่อแสดง icon + จำนวน turn ที่เหลือ ที่การ์ดบนสนาม
- * (ฟังก์ชันนี้ UI จะอ่าน char.buffs, char.debuffs [])
+ * ตรวจสอบว่าตัวละครนี้โดน stun หรือ skip turn (เช่น stun, sleep, freeze, silence ฯลฯ)
+ * @param {Object} char
+ * @returns {Boolean}
  */
+function isTurnSkipStatus(char) {
+  if (!char || !char.debuffs) return false;
+  const effectNames = ["stun", "sleep", "freeze", "silence"];
+  return char.debuffs.some(b => effectNames.includes(b.type));
+}
 
 /**
- * สำหรับใช้ใน battle.js:
- * - ก่อนเริ่ม turn, processStatusTurn()
- * - check ว่า stun/skip turn ไม่โจมตี
- * - หลัง heal/attack/addEffect ใช้ addEffect()
- * - ลบสถานะ removeStatus(char, type)
+ * ลบ buff หรือ debuff หรือทั้งหมด
+ * @param {Object} char
+ * @param {String} [type="all"] - 'buff'|'debuff'|'all'
  */
+function clearStatus(char, type = "all") {
+  if (!char) return;
+  if (type === "all" || type === "buff") char.buffs = [];
+  if (type === "all" || type === "debuff") char.debuffs = [];
+}
 
-// ---- Export (global assignment)
+/**
+ * ฟังก์ชันแสดงดาเมจ/ฮีล เป็น popup (เชื่อมกับ window.showDamage)
+ */
+function showStatusPopup(char, value, color = "#ff7777") {
+  // value > 0 : heal, <0 : dmg
+  // Find side, index for rendering (if available)
+  let side = char.side || "hero",
+    idx = typeof char.index === "number" ? char.index : 0;
+  if (window.showDamage) window.showDamage(idx, side, value, color);
+}
+
+// -- EXPORT: API Global --
 window.effectEngine = {
-    addEffect,
-    processStatusTurn,
-    isStunnedOrSkipped,
-    removeStatus
+  addEffect: addEffectV2,
+  processStatusTurn: processStatusEachTurn,
+  isStunnedOrSkipped: isTurnSkipStatus,
+  removeStatus: clearStatus
 };

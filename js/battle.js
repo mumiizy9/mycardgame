@@ -1,434 +1,318 @@
-/**
- * js/battle.js
- * Epic Seven Card Auto Battle Main Engine (Frontend 100%)
- * Full Modular, Responsive, AI, Animation, CD, Buff/Debuff, WIN/LOSE Result
- * By (yourname)
- */
+// js/battle.js - Epic Seven Card Battle NEW (2024/06 Rewrite By GPT-4)
+// ระบบต่อสู้แบบ SPD BAR, AI Auto, Popup ดาเมจ/ฮีล, Event เชื่อม, รองรับโมดูลใหม่ (effect, passive, animation)
 
-/* ------------------ Config & State ------------------ */
-const SPD_BAR_MAX = 100;    // SPD bar เต็ม
-const SPD_FRAME = 120;      // ms ต่อ tick
-const MAX_TEAM = 4, MAX_MON = 4;
+const CONFIG = { SPD_MAX: 100, SPD_FRAME: 120, MAX_HERO: 4, MAX_MON: 4 };
+let Battle = {
+    heroes: [],
+    monsters: [],
+    spdBar: [],
+    auto: false,
+    running: false,
+};
 
-let heroes = [];      // ฝั่งผู้เล่น (heroes: [{...}])
-let monsters = [];    // ฝั่งศัตรู (monsters: [{...}])
-let speedBars = [];   // SPD bar + Buff/Debuff refs
-let autoOn = false;
-let isBattling = false;
-
-/* ------------------ 1. LOAD TEAM & ENEMY ------------------ */
+// ----------------- LOAD TEAM & ENEMY -----------------
 async function loadBattleTeams() {
-    // Load User Team
-    let t = localStorage.getItem('userTeam');
-    let myTeam = t ? JSON.parse(t) : [];
-    heroes = [];
-    for (let id of myTeam) {
+    // Load user team
+    let ids = JSON.parse(localStorage.getItem('userTeam') || "[]");
+    Battle.heroes = [];
+    for (let id of ids) {
         if (!id) continue;
         let c = await fetch(`data/char/${id}.json`).then(r => r.json());
-        heroes.push({
-            ...deepCopy(c),
-            currHp: c.hp,
-            alive: true,
-            buffs: [],
-            debuffs: [],
-            cooldowns: Array((c.skills || []).length).fill(0)
-        });
+        let meta = { ...c, currHp: c.hp, alive: true, buffs: [], debuffs: [], cooldowns: new Array((c.skills||[]).length).fill(0) };
+        if (window.passiveEngine?.apply) await window.passiveEngine.apply(meta);
+        Battle.heroes.push(meta);
     }
-    // Load Monsters (Mock: slime_basic N ตัว)
-    monsters = [];
-    for (let i = 0; i < MAX_MON; i++) {
-        let c = await fetch(`data/char/slime_basic.json`).then(r => r.json());
-        monsters.push({
-            ...deepCopy(c),
-            id: c.id + '_' + (i+1),
-            currHp: c.hp,
-            alive: true,
-            buffs: [],
-            debuffs: [],
-            cooldowns: Array((c.skills || []).length).fill(0)
-        });
+    // Load monsters ("monster_list" หรือ fallback)
+    let mlist = [];
+    try {
+        mlist = JSON.parse(localStorage.getItem("monster_list") || '["slime_basic"]');
+    } catch { mlist = ["slime_basic"]; }
+    Battle.monsters = [];
+    for (let i = 0; i < CONFIG.MAX_MON; i++) {
+        let id = mlist[i % mlist.length];
+        let c = null;
+        try { c = await fetch(`data/monster/${id}.json`).then(r => r.json()); }
+        catch { c = { id: "slime_basic", name: "Slime", hp: 300, atk: 18, def: 7, spd: 85, img: "slime_basic.png", skills: [] }; }
+        let meta = { ...c, id: c.id + '_' + (i+1), currHp: c.hp, alive: true, buffs: [], debuffs: [], cooldowns: new Array((c.skills||[]).length).fill(0) };
+        if (window.passiveEngine?.apply) await window.passiveEngine.apply(meta);
+        Battle.monsters.push(meta);
     }
 }
 
-/* ------------------ 2. SPD BAR INIT ------------------ */
+// ----------------- SPD BAR INIT -----------------
 function initSpdBar() {
-    speedBars = [];
-    heroes.forEach((c, i) => {
-        speedBars.push(makeSpeedObj(c, i, 'hero'));
-        c.index = i; c.side = 'hero'; // Weak ref.
-    });
-    monsters.forEach((c, i) => {
-        speedBars.push(makeSpeedObj(c, i, 'mon'));
-        c.index = i; c.side = 'mon';
-    });
+    Battle.spdBar = [];
+    Battle.heroes.forEach((h,i) => Battle.spdBar.push(spdObject(h,i,"hero")));
+    Battle.monsters.forEach((m,i) => Battle.spdBar.push(spdObject(m,i,"mon")));
 }
-function makeSpeedObj(c, i, side) {
-    return {
-        id: `${side}${i}`,
-        side,
-        name: c.name,
-        spd: c.spd,
-        charge: 0,
-        dead: false,
-        index: i,
-        cooldowns: c.cooldowns,
-        buffs: c.buffs,
-        debuffs: c.debuffs
-    };
+function spdObject(c, idx, side) {
+    return { id: `${side}${idx}`, idx, side, name:c.name, spd:c.spd, charge:0, dead:false, cooldowns:c.cooldowns, buffs:c.buffs, debuffs:c.debuffs };
 }
 
-/* ------------------ 3. RENDER FIELD ------------------ */
+// ----------------- RENDER FIELD + CARD -----------------
 function renderBattlefield() {
-    const heroRow = document.querySelector('.card-row.user');
-    heroRow.innerHTML = '';
-    heroes.forEach((c, idx) => {
-        heroRow.appendChild(renderCard(c, idx, 'hero'));
-    });
-    const monRow = document.querySelector('.card-row.monster');
-    monRow.innerHTML = '';
-    monsters.forEach((c, idx) => {
-        monRow.appendChild(renderCard(c, idx, 'mon'));
-    });
+    let heroRow = document.querySelector('.card-row.user');
+    let monRow  = document.querySelector('.card-row.monster');
+    if (heroRow) heroRow.innerHTML = '';
+    if (monRow) monRow.innerHTML   = '';
+    Battle.heroes.forEach((c, i) => heroRow?.appendChild(renderCardNew(c,i,"hero")));
+    Battle.monsters.forEach((c, i) => monRow?.appendChild(renderCardNew(c,i,"mon")));
     // SPD Bars
-    const spdDiv = document.querySelector('.spd-bar-container');
-    spdDiv.innerHTML = '';
-    speedBars.forEach(bar => {
-        let barWrap = document.createElement('div');
-        barWrap.className = 'spd-bar';
-        barWrap.title = `[${bar.side === 'hero' ? 'ทีมเรา':'ศัตรู'}] ${bar.name} SPD:${bar.spd}`;
+    let bar = document.querySelector('.spd-bar-container');
+    if (bar) bar.innerHTML = '';
+    Battle.spdBar.forEach(obj=>{
+        let wrap = document.createElement('div');
+        wrap.className = 'spd-bar';
+        wrap.title = `[${obj.side=="hero"?"Hero":"Monster"}] ${obj.name} SPD:${obj.spd}`;
         let fill = document.createElement('div');
         fill.className = 'spd-bar-fill';
-        fill.style.width = Math.floor(Math.min(bar.charge, SPD_BAR_MAX)/SPD_BAR_MAX*100) + '%';
-        barWrap.appendChild(fill);
-        spdDiv.appendChild(barWrap);
+        fill.style.width = Math.floor(Math.min(CONFIG.SPD_MAX, obj.charge)/CONFIG.SPD_MAX*100) + "%";
+        wrap.appendChild(fill); bar?.appendChild(wrap);
     });
 }
-
-/* ------------------ CARD DISPLAY utils ------------------ */
-function renderCard(c, idx, side='hero') {
+function renderCardNew(c, idx, side) {
     let d = document.createElement('div');
-    d.className = 'card'; d.id = `${side}${idx}`;
+    d.className = 'card';
+    d.id = `${side}${idx}`;
     d.setAttribute('data-idx', idx);
     d.setAttribute('data-side', side);
-
-    // Image
     let img = document.createElement('img');
-    img.className = side == 'hero' ? 'hero-img' : 'mon-img';
+    img.className = (side=="hero"?"hero-img":"mon-img");
     img.src = `img/char/${c.img}`;
     img.alt = c.name;
     d.appendChild(img);
-    // Name
-    d.appendChild(createDiv('name', c.name));
-
+    d.appendChild(divCls('name', c.name));
     // HP BAR
     let statbar = document.createElement('div');
     statbar.className = 'statbar';
     let hpfill = document.createElement('div');
     hpfill.className = 'hp-fill';
-    let hppercent = Math.max(0, Math.min(1, c.currHp/c.hp));
-    hpfill.style.width = (hppercent*100) + '%';
+    let hpPer = Math.max(0, Math.min(1, c.currHp / c.hp));
+    hpfill.style.width = (hpPer * 100) + "%";
     statbar.appendChild(hpfill);
     d.appendChild(statbar);
-
-    // Buff/Debuff
+    // buffer and debuff icons
     let statIcons = document.createElement('div');
     statIcons.className = 'stat-icons';
-    (c.buffs||[]).forEach(b => statIcons.appendChild(renderStatusIcon(b, 'buff')));
-    (c.debuffs||[]).forEach(dbb => statIcons.appendChild(renderStatusIcon(dbb, 'debuff')));
+    (c.buffs||[]).forEach(b => statIcons.appendChild(iconForStatus(b,"buff")));
+    (c.debuffs||[]).forEach(b => statIcons.appendChild(iconForStatus(b,"debuff")));
     d.appendChild(statIcons);
-
-    d.appendChild(createDiv('', `HP ${Math.floor(c.currHp)}/${c.hp} SPD:${c.spd}`, {fontSize: ".82em"}));
+    d.appendChild(divCls('', `HP ${Math.floor(c.currHp)}/${c.hp} SPD:${c.spd}`, {fontSize:".82em"}));
     return d;
 }
-
-function createDiv(cn, txt, styleObj) {
-    let d = document.createElement("div");
-    if (cn) d.className = cn; d.innerText = txt;
+function divCls(cls, txt, styleObj) {
+    let d = document.createElement('div');
+    if (cls) d.className = cls;
+    d.innerText = txt;
     if (styleObj) Object.assign(d.style, styleObj);
     return d;
 }
-
-function renderStatusIcon(stat, type='buff') {
+function iconForStatus(stat, type) {
     let e = document.createElement('div');
     e.className = 'stat-icon '+type;
-    e.innerHTML = getIcon(stat.type) ;
-    e.title = stat.type.toUpperCase() + (stat.turn?" ("+stat.turn+"T)":"");
+    e.innerHTML = getStatEmoji(stat.type);
+    e.title = (stat.type||"").toUpperCase()+(stat.turn?(" ("+stat.turn+"T)"):"");
+    if (stat.turn && stat.turn > 0) {
+        let lbl = document.createElement('small');
+        lbl.style = "position:absolute;font-size:.79em;font-weight:bold;right:2px;bottom:1px;color:"+ (type=="buff"?"#42fcc1":"#ffc3a3");
+        lbl.innerText = stat.turn;
+        e.appendChild(lbl);
+    }
     let tt = document.createElement('span');
     tt.className = 'tooltip';
-    tt.innerText = statusTooltip(stat.type, type, stat);
+    tt.innerText = statDesc(stat.type,type,stat);
     e.appendChild(tt);
-    if (stat.turn && stat.turn>0) {
-        let lbl = document.createElement('small');
-        Object.assign(lbl.style,{
-            position:'absolute', fontSize:'.79em', fontWeight:'bold',
-            right:'2px', bottom:'1px', color: type==='buff'?'#42fcc1':'#ffc3a3'
-        });
-        lbl.innerText = stat.turn; e.appendChild(lbl);
-    }
     return e;
 }
-function statusTooltip(type, side, details) {
-    const lib = {
-        'def_break':'DEF ลดลง รับดาเมจเพิ่ม','def_up':'DEF เพิ่มขึ้น',
-        'stun':'ติดสถานะมึน, ข้ามเทิร์น','poison':'โดนพิษ (ลดเลือด)',
-        'burn':'เผาไฟ (ลดเลือดหนัก)','heal_ot':'ฟื้นฟูต่อเนื่อง',
-        'spd_up':'SPD เพิ่มขึ้น','spd_down':'SPD ลดลง',
-        'immune':'กันดีบัฟ','silence':'ใบ้ (ใช้สกิลไม่ได้)',
-    };
-    return (lib[type]||type)+((details.turn)?" ("+details.turn+" turn)":"");
+function statDesc(type, side, details) {
+    // Short desc
+    const lib = {def_break: 'DEF↓',def_up:'DEF↑',stun:'Stun',poison:'Poison',burn:'Burn',heal_ot:'HoT',spd_up:'SPD↑',spd_down:'SPD↓',immune:'Immune',silence:'Silence'};
+    return (lib[type]||type) + (details.turn?(" ("+details.turn+" turn)"):"");
 }
-function getIcon(type) {
-    switch(type){
-        case "def_break":return "🛠️"; case "def_up":return "🛡️";
-        case "stun":return "💫"; case "heal_ot":return "💚";
-        case "poison":return "☠️"; case "burn":return "🔥";
-        case "spd_up":return "💨"; case "spd_down":return "🐢";
-        case "immune":return "🔒"; case "silence":return "🔇";
-        default:return "✨";
-    }
+function getStatEmoji(t) {
+    return {def_break:"🛠️",def_up:"🛡️",stun:"💫",heal_ot:"💚",poison:"☠️",burn:"🔥",spd_up:"💨",spd_down:"🐢",immune:"🔒",silence:"🔇"}[t] || "✨";
 }
 
-// Window-wide Damage popup (as UI Function)
-window.showDamage = function(idx, side, dmg, color='#ff5656') {
-    let c = document.getElementById(`${side}${idx}`);
-    if (!c) return;
-    let dPop = document.createElement('span');
-    dPop.className = 'damage-popup';
-    dPop.innerText = (dmg<0?"+":"-")+Math.abs(dmg);
-    dPop.style.color=color;
-    c.appendChild(dPop);
-    setTimeout(()=>{ dPop.remove(); }, 700);
+// ----------------- SHOW DAMAGE / HEAL popups -----------------
+window.showDamage = function(idx, side, value, color='#ff5656') {
+    let dom = document.getElementById(`${side}${idx}`);
+    if (!dom) return;
+    let pop = document.createElement('span');
+    pop.className = 'damage-popup';
+    pop.innerText = (value < 0 ? "+" : "-") + Math.abs(value);
+    pop.style.color = color;
+    dom.appendChild(pop);
+    setTimeout(()=>pop.remove(), 900);
 };
 
-/* ------------------ 4. SPD BAR LOOP & TURN SYSTEM------------------ */
-function startBattle() {
-    if (isBattling) return; isBattling = true; autoOn = true;
-    async function battleLoop(){
-        while(isBattling){
-            for(let bar of speedBars){
-                if(bar.dead) continue;
-                // Refs
-                let charArr = bar.side=='hero' ? heroes : monsters;
-                let charPtr = charArr[bar.index];
-                // 1. Process Buff/Debuff countdown&effects (HoT/Poison)
-                window.effectEngine?.processStatusTurn?.(charPtr);
-                if(charPtr.currHp<=0){ charPtr.alive=false; bar.dead=true; continue; }
-                if(window.effectEngine?.isStunnedOrSkipped?.(charPtr)){
-                    bar.cooldowns.forEach((v,i,arr)=>{ if(arr[i]>0) arr[i]--; });
+// ----------------- AUTO SPD BAR LOOP & TURNS -----------------
+async function startBattle() {
+    if (Battle.running) return; Battle.running = true; Battle.auto = true;
+    async function loop() {
+        while (Battle.running) {
+            for (let i=0;i<Battle.spdBar.length;i++) {
+                let bar = Battle.spdBar[i];
+                if (bar.dead) continue;
+                let charArr = (bar.side=="hero"?Battle.heroes:Battle.monsters);
+                let char = charArr[bar.idx];
+                // Process buffs/debuffs/HoT, before charge
+                if (window.effectEngine?.processStatusTurn) window.effectEngine.processStatusTurn(char);
+                if (char.currHp <= 0) { char.alive = false; bar.dead = true; continue; }
+                if (window.effectEngine?.isStunnedOrSkipped?.(char)) {
+                    bar.cooldowns.forEach((v, i, arr) => {if(arr[i]>0) arr[i]--;});
                     continue;
                 }
-                if(!charPtr.alive) continue;
-                // SPD charge
-                bar.charge += getSpdCharge(bar);
-                if(bar.charge >= SPD_BAR_MAX){
+                // Increase SPD
+                bar.charge += spdChargeCurrent(bar);
+                if (bar.charge >= CONFIG.SPD_MAX) {
                     bar.charge = 0;
-                    await doTurn(bar); // AI turn+animate+action
-                    renderBattlefield(); // Render after turn
-                    break; // sync (1 at a time)
+                    await runTurn(bar);
+                    renderBattlefield();
+                    break; // pause, rerun
                 }
             }
             checkBattleResult();
             renderBattlefield();
-            await (window.animationEngine?.sleep ?
-                window.animationEngine.sleep(SPD_FRAME) :
-                new Promise(r=>setTimeout(r, SPD_FRAME)));
+            await (window.animationEngine?.sleep ? window.animationEngine.sleep(CONFIG.SPD_FRAME) : new Promise(r=>setTimeout(r,CONFIG.SPD_FRAME)));
         }
     }
-    battleLoop();
+    loop();
 }
-function getSpdCharge(bar){
-    let spdVal = bar.spd;
-    let bonus = 1.0;
-    if(bar.buffs?.some(b=>b.type=="spd_up")) bonus += 0.3;
-    if(bar.debuffs?.some(b=>b.type=="spd_down")) bonus -= 0.3;
-    return spdVal/10 * bonus;
+function spdChargeCurrent(bar) {
+    let spd = bar.spd, up=1.0;
+    if (bar.buffs?.some(b => b.type=="spd_up")) up+=.3;
+    if (bar.debuffs?.some(b => b.type=="spd_down")) up-=.3;
+    return spd/10*up;
 }
-
-/* ------------------ 5. TURN: AI เลือกเป้าหมาย/สกิล & Animation ------------------ */
-async function doTurn(bar){
-    let charArr = bar.side=='hero'?heroes:monsters;
-    let oppArr = bar.side=='hero'?monsters:heroes;
-    let idx = bar.index;
-    let charPtr = charArr[idx];
-
-    window.effectEngine?.processStatusTurn?.(charPtr);
-    if(window.effectEngine?.isStunnedOrSkipped?.(charPtr)){
-        bar.cooldowns.forEach((v,i,arr)=>{ if(arr[i]>0) arr[i]--; });
+async function runTurn(bar) {
+    let team = (bar.side=="hero"?Battle.heroes:Battle.monsters);
+    let enemy = (bar.side=="hero"?Battle.monsters:Battle.heroes);
+    let char = team[bar.idx];
+    if (window.effectEngine?.processStatusTurn) window.effectEngine.processStatusTurn(char);
+    if (window.effectEngine?.isStunnedOrSkipped?.(char)) {
+        bar.cooldowns.forEach((v,i,arr)=>{if(arr[i]>0) arr[i]--;});
         return;
     }
-    if(!charPtr.alive) return;
-
-    // --- PICK SKILL (AI) ---
-    let skill = window.aiPickSkill ? window.aiPickSkill(charPtr, bar.cooldowns, charArr, oppArr) : pickSkill(charPtr, bar);
-
-    // --- PICK TARGET
+    if (!char.alive) return;
+    // AI pick skill+target
+    let skill = window.aiPickSkill ? window.aiPickSkill(char, bar.cooldowns, team, enemy) : pickSkillFallback(char,bar);
     let targets = [];
-    if(skill.type==='attack')
-        targets = [window.aiPickTarget ? window.aiPickTarget(oppArr, skill) : aiPickTarget(oppArr, skill)];
-    else if(skill.type==='buff')
-        targets = charArr.filter(c=>c.alive);
-    else if(skill.type==='heal')
-        targets = [window.aiPickTarget ? window.aiPickTarget(charArr, skill) : aiPickTarget(charArr, skill)];
-    else if(skill.type==='aoe' || (skill.type==='attack' && skill.multiplier>1.2)) // AoE
-        targets = oppArr.filter(o=>o.alive);
-    else
-        targets = [window.aiPickTarget ? window.aiPickTarget(oppArr, skill) : aiPickTarget(oppArr, skill)];
-    targets = targets.filter(Boolean);
-
-    // --- Animation Section ---
-    // Card slide / AOE / Buff / Heal
-    if(skill.type==='attack' && targets[0]){
-        let tidx = oppArr.indexOf(targets[0]);
-        await window.animationEngine?.animateAttackCard?.(idx, tidx, bar.side, bar.side==='hero'?'mon':'hero');
+    if (skill.type==="attack" && (skill.multiplier > 1.2 || skill.type==='aoe')) targets = enemy.filter(e=>e.alive);
+    else if (skill.type==="attack") targets = [pickTargetFallback(enemy, skill)];
+    else if (skill.type==="buff") targets = team.filter(c=>c.alive);
+    else if (skill.type==="heal") targets = [pickTargetFallback(team, skill)];
+    targets = (targets||[]).filter(Boolean);
+    // Animation
+    if (window.animationEngine) {
+        if (skill.type==="attack" && targets[0]) {
+            let ti = enemy.indexOf(targets[0]);
+            await window.animationEngine.animateAttackCard(bar.idx, ti, bar.side, bar.side=="hero"?"mon":"hero");
+        }
+        if ((skill.type==="attack" && skill.multiplier>1.2 && targets.length>1) || skill.type==="aoe") {
+            let tiarr = targets.map(t=>enemy.indexOf(t));
+            await window.animationEngine.animateAoEAttack(bar.idx, bar.side, bar.side=="hero"?"mon":"hero", tiarr);
+        }
+        if (skill.type==="heal") await window.animationEngine.animateHeal(bar.idx, bar.side);
+        if (skill.type==="buff") await window.animationEngine.animateBuffDebuff(bar.idx, bar.side, "buff");
     }
-    if((skill.type==='aoe' || (skill.type==='attack' && skill.multiplier>1.2 && targets.length>1))) {
-        let tgtIdxArr = targets.map(t=>oppArr.indexOf(t));
-        await window.animationEngine?.animateAoEAttack?.(idx, bar.side, bar.side==='hero'?'mon':'hero', tgtIdxArr);
-    }
-    if(skill.type==='heal'){
-        await window.animationEngine?.animateHeal?.(idx, bar.side);
-    }
-    if(skill.type==='buff'){
-        await window.animationEngine?.animateBuffDebuff?.(idx, bar.side, "buff");
-    }
-
-    // --- APPLY SKILL ---
-    await doSkill(charPtr, skill, targets, bar.side);
-
-    // --- Increase Cooldown ---
-    if(skill.cooldown)
-        bar.cooldowns[charPtr.skills.findIndex(s=>s.id==skill.id)] = skill.cooldown+1;
-    bar.cooldowns.forEach((v,i,arr)=>{ if(arr[i]>0) arr[i]--; });
+    // Apply skill
+    await doSkillNew(char, skill, targets, bar.side);
+    // Cooldown
+    if (skill.cooldown) bar.cooldowns[char.skills.findIndex(s=>s.id==skill.id)] = skill.cooldown+1;
+    bar.cooldowns.forEach((v,i,arr)=>{if(arr[i]>0) arr[i]--;});
 }
-
-// Fallback PickSkill, PickTarget ถ้าไม่มี ai.js
-function pickSkill(char, bar){
+function pickSkillFallback(char,bar) {
     let order = [2,1,0];
-    for(let i of order){
-        if(!char.skills[i]) continue;
-        if(bar.cooldowns[i]<=0) return char.skills[i];
-    }
-    return char.skills[0];
+    for (let i of order) if (char.skills?.[i] && bar.cooldowns[i]<=0) return char.skills[i];
+    return char.skills?.[0];
 }
-function aiPickTarget(arr, skill=null){
-    // Heal: lowest HP, Buff: first, Default: hp lowest enemy
+function pickTargetFallback(arr,skill) {
     arr = arr.filter(c=>c.alive);
-    if(skill && skill.type==="heal")
-        return arr.sort((a,b)=>a.currHp/a.hp - b.currHp/b.hp)[0];
-    if(skill && skill.type==="buff") return arr[0];
-    return arr.sort((a,b)=>a.currHp - b.currHp)[0];
+    if (skill?.type==="heal") return arr.sort((a,b)=>a.currHp/a.hp-b.currHp/b.hp)[0];
+    return arr.sort((a,b)=>a.currHp-b.currHp)[0];
 }
 
-/* ------------------ 6. Apply Damage/Effect ------------------ */
-async function doSkill(source, skill, targets, sourceSide){
-    if(!targets) return;
-    for(let t of targets){
-        if(!t.alive) continue;
-        if(skill.type=="heal"){
-            let healVal = Math.floor(source.atk * 0.7 + source.level * 1.5);
-            t.currHp = Math.min(t.hp, t.currHp + healVal);
-            window.showDamage?.(t.index, t.side, -healVal, '#59f495');
-            t.alive = t.currHp>0;
+// ----------------- APPLY SKILL -----------------
+async function doSkillNew(user, skill, targets, side) {
+    if (!targets) return;
+    for (let t of targets) {
+        if (!t.alive) continue;
+        // Heal
+        if (skill.type=="heal") {
+            let val = Math.floor(user.atk*0.7 + user.level*1.5);
+            t.currHp = Math.min(t.hp, t.currHp + val);
+            window.showDamage?.(t.index, t.side, -val, "#59f495"); // heal popup
+            t.alive = t.currHp > 0;
             continue;
         }
-        if(skill.type=="buff" && skill.effect && skill.effect.buff){
-            window.effectEngine?.addEffect(t, skill.effect.buff, "buff");
+        // Buff
+        if (skill.type=="buff" && skill.effect?.buff)
+        {
+            window.effectEngine?.addEffect?.(t, skill.effect.buff, "buff");
             continue;
         }
-        // Attack / AoE
-        let dmg = Math.floor(source.atk * (skill.multiplier || 1) * (1 + (source.crit_rate || 0) / 100));
+        // Attack/AoE
+        let dmg = Math.floor(user.atk * (skill.multiplier||1) * (1 + (user.crit_rate||0)/100));
         let defReduce = t.debuffs?.some(d=>d.type=="def_break") ? 1.4 : 1;
-        let defVal = t.def * defReduce;
+        let defVal = t.def*defReduce;
         dmg = Math.max(Math.floor(dmg - defVal/3), 1);
-        if(Math.random()*100 < (source.crit_rate||0)) dmg = Math.floor(dmg*((source.crit_dmg||150)/100));
-
+        if (Math.random()*100 < (user.crit_rate||0)) dmg = Math.floor(dmg * ((user.crit_dmg||150)/100));
         t.currHp = Math.max(0, t.currHp - dmg);
-        t.alive = t.currHp>0;
-        if(t.currHp<=0) t.alive = false;
-        window.showDamage?.(t.index, t.side, dmg, '#ff5656');
+        t.alive = t.currHp > 0;
+        window.showDamage?.(t.index, t.side, dmg, "#ff5656");
         // Debuff
-        if(skill.effect?.debuff) {
-            window.effectEngine?.addEffect(t, skill.effect.debuff, "debuff");
+        if (skill.effect?.debuff) {
+            window.effectEngine?.addEffect?.(t, skill.effect.debuff, "debuff");
         }
-        // TODO: Cleanse, Remove buff/debuff future
+        // Passive: onDamaged
+        if (window.passiveEngine?.trigger) window.passiveEngine.trigger("onDamaged", t, {attacker:user,skill});
     }
 }
 
-/* ------------------ 7. RESULT ------------------ */
-function checkBattleResult(){
-    let mySurvive = heroes.some(c=>c.alive);
-    let monSurvive = monsters.some(c=>c.alive);
-    if(!mySurvive || !monSurvive){
-        isBattling = false;
-        showBattleResult(mySurvive ? 'win' : 'lose');
+// ----------------- RESULT CHECK ----------------
+function checkBattleResult() {
+    let aliveH = Battle.heroes.some(c=>c.alive);
+    let aliveM = Battle.monsters.some(c=>c.alive);
+    if (!aliveH || !aliveM) {
+        Battle.running = false;
+        showBattleResultPop(aliveH ? "win" : "lose");
     }
 }
-function showBattleResult(state){
-    // ใช้ popupManager ถ้ามี (หรือ renderBattleResult)
-    if(window.renderBattleResult){
-        window.renderBattleResult({state});
-    }else{
-        setTimeout(()=>{
-            openPopup('battleResult', {state});
-        },800);
-    }
+function showBattleResultPop(state) {
+    if (window.renderBattleResult)
+        window.renderBattleResult({ state });
+    else setTimeout(()=>{
+        openPopup('battleResult', {
+            state
+        });
+    },800);
 }
 
-/* ------------------ 8. INIT (START) ------------------ */
+// ----------- DOM STARTUP: START/RENDER -----------
 document.addEventListener('DOMContentLoaded', ()=>{
-    const btnStartAuto = document.getElementById('btnStartAuto');
-    if(btnStartAuto)
-        btnStartAuto.onclick = async ()=>{
-            autoOn = true;
-            await loadBattleTeams();
-            initSpdBar();
-            renderBattlefield();
-            startBattle();
-        };
-    // if battlefield already open
-    if(document.getElementById('mainBattlefield') && 
-            !document.getElementById('mainBattlefield').classList.contains('hide')) {
-        loadBattleTeams().then(() => {
+    let btn = document.getElementById('btnStartAuto');
+    if (btn) btn.onclick = async()=>{
+        Battle.auto = true;
+        await loadBattleTeams();
+        initSpdBar();
+        renderBattlefield();
+        startBattle();
+    };
+    if(document.getElementById('mainBattlefield') && !document.getElementById('mainBattlefield').classList.contains('hide')) {
+        loadBattleTeams().then(()=>{
             initSpdBar();
             renderBattlefield();
         });
     }
 });
 
-/* ------------------ 9. Utilities ------------------ */
-function deepCopy(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
+// ----------- HELPER: deepcopy for char/monster -----------
+function deepCopy(obj) { return JSON.parse(JSON.stringify(obj)); }
 
-/* 
-   สำหรับ Dev/Test หรือการเชื่อม UI 
-   - สามารถรีเซ็ตสถานะ/ทีมใหม่, หรือเพิ่มปุ่ม debug ได้
-*/
-
-/* ------------------ 10. Export Global ฟังก์ชัน (ถ้าต้องใช้) ------------------ */
+// ----------- EXPORT Global API -----------
 window.battleEngine = {
-    loadBattleTeams, initSpdBar, renderBattlefield, startBattle, heroes, monsters, speedBars
+    loadBattleTeams, initSpdBar, renderBattlefield, startBattle,
+    get heroes() { return Battle.heroes; },
+    get monsters() { return Battle.monsters; },
+    get speedBars() { return Battle.spdBar; }
 };
-
-/* ------------------ Custom BattleResult Popup (แสดงผล) ------------------ */
-(function () {
-    const origRenderPopup = window.renderPopup;
-    window.renderPopup = function(type, data) {
-        if(type === "battleResult") {
-            return `<div class="popup large"><button class="close" onclick="closePopup()">×</button>
-                <h2>ผลลัพธ์การต่อสู้</h2>
-                <div style="font-size:2em;text-align:center;margin-bottom:12px;">
-                  ${data.state === "win" ? "🏆 <b style='color:#54e0be'>ชนะ!</b>" : "❌ <b style='color:#f47'>แพ้</b>"}
-                </div>
-                <button class="primary-btn" onclick="closePopup()">โอเค</button>
-            </div>`;
-        }
-        return origRenderPopup(type, data);
-    };
-})();
-
-/* 
- หมายเหตุ:
- - หากจะเชื่อมผลลัพธ์จริง (EXP, ดรอป, เลเวลอัพ) ใช้ window.renderBattleResult จาก result.js แทน
- - หากไม่มีให้ fallback popup นี้ได้เลย
-*/

@@ -1,0 +1,37 @@
+{
+  "id": "slime_blue",
+  "type": "monster",
+  "name": "Blue Slime",
+  "element": "water",
+  "class": "monster",
+  "rarity": 3,
+  "star": 3,
+  "level": 7,
+  "level_max": 40,
+  "exp": 0,
+  "exp_max": 1,
+  "hp": 1700,
+  "atk": 120,
+  "def": 22,
+  "spd": 530,
+  "crit_rate": 10,
+  "crit_dmg": 135,
+  "effectiveness": 10,
+  "resistance": 10,
+  "skills": [
+    {
+      "id": "slime_blue_slap",
+      "name": "Slap",
+      "type": "attack",
+      "desc": "โจมตีศัตรู 1 ตัว มีโอกาสลด SPD 1 เทิร์น",
+      "multiplier": 0.92,
+      "effect": {
+        "debuff": [
+          { "type": "spd_down", "turn": 1, "chance": 25 }
+        ]
+      },
+      "cooldown": 0
+    }
+  ],
+  "img": "slime_blue.png"
+}

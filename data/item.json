@@ -55,11 +55,11 @@
     "id": "heal_potion",
     "name": "Heal Potion",
     "type": "heal",
-    "description": "ไอเท็มใช้ฟื้นฟู HP 50% ให้ตัวละครที่เลือก หรือใช้เติม Energy (+15)",
+    "description": "ไอเท็มใช้ฟื้นฟู HP 50% ให้ตัวละครที่เลือก หรือใช้เติม Energy (+30)",
     "img": "heal_potion.png",
     "rarity": 2,
     "usable": true,
-    "effect": { "hp_pct": 50, "energy": 15 },
+    "effect": { "hp_pct": 50, "energy": 30 },
     "price": 120
   }
 ]
