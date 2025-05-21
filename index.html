@@ -1,275 +1,359 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Epic Seven Card Auto Battle</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" href="favicon.ico" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Anime Pink Tech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Nunito:wght@500&display=swap" rel="stylesheet">
   <style>
-    #mainBattlefield.hide { display: none; }
-    /* Login Overlay */
-    #loginOverlay {
-      position: fixed;
-      z-index: 9999;
-      left: 0; top: 0;
-      width: 100vw; height: 100vh;
-      background: rgba(13,17,32,0.96);
+    body {
+      background: #18121b;
+      color: #FFE3F3;
+      font-family: 'Nunito', 'Orbitron', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+    header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      padding: 30px 5vw 0 5vw;
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2em;
+      color: #ff39cb;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px #ff39cb66;
+    }
+    nav a {
+      color: #FFE3F3;
+      margin: 0 15px;
+      font-size: 1.1em;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    nav a:hover {
+      color: #ff39cb;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 40px auto 0 auto;
+      padding: 0 5vw 40px 5vw;
+    }
+
+    .anime-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
       justify-content: center;
+    }
+    .anime-card {
+      background: #221B29;
+      border-radius: 22px;
+      box-shadow: 0 4px 32px #2c234099;
+      width: 240px;
+      transition: transform .2s, box-shadow .2s;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+    }
+    .anime-card:hover {
+      transform: scale(1.04);
+      box-shadow: 0 4px 40px #ff39cb99, 0 10px 50px #0007;
+    }
+    .anime-thumb {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      filter: brightness(0.98) saturate(1.16) drop-shadow(0 0 6px #ff39cb36);
+      transition: filter .2s;
+    }
+    .anime-card:hover .anime-thumb {
+      filter: brightness(1) saturate(1.3);
+    }
+    .anime-info {
+      padding: 18px 16px;
+    }
+    .anime-title {
+      font-size: 1.25em;
+      font-family: 'Orbitron', sans-serif;
+      color: #fff;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .anime-latest {
+      color: #ff98dc;
+    }
+    .anime-watch-btn {
+      border: none;
+      outline: none;
+      padding: 8px 0;
+      width: 100%;
+      background: linear-gradient(90deg, #ff39cb 40%, #ff98dc 100%);
+      color: white;
+      font-size: 1.07em;
+      margin-top: 16px;
+      border-radius: 12px;
+      box-shadow: 0 0 24px #ff39cb55;
+      cursor: pointer;
+      transition: box-shadow 0.2s, background 0.2s;
+      text-shadow: 0 0 10px #ff39cb66;
+    }
+    .anime-watch-btn:hover {
+      box-shadow: 0 0 36px #ff39cbbb, 0 2px 16px #fff3;
+      background: linear-gradient(90deg, #ff98dc, #ff39cb 60%);
+    }
+
+    /*** Pop-up Player ***/
+    .popup-bg {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: linear-gradient(120deg, #220522cc 0%, #14071699 100%);
+      backdrop-filter: blur(2px);
+      animation: fadeIn .3s;
+      align-items: center;
+      justify-content: center;
+    }
+    .popup-bg.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0;} to {opacity: 1;}
+    }
+    .popup-content {
+      background: rgba(32,14,34,0.85);
+      box-shadow: 0 0 50px #ff39cbaa, 0 12px 50px #2227;
+      border-radius: 26px;
+      padding: 30px 8vw 30px 8vw;
+      max-width: 900px;
+      width: 98vw;
+      max-height: 94vh;
+      overflow: auto;
+      position: relative;
+      display: flex;
       flex-direction: column;
-      transition: opacity .2s;
-      font-family: 'Prompt', 'Sarabun', Arial, sans-serif;
+      align-items: center;
+      filter: drop-shadow(0 0 20px #000A);
+      border: 2px solid #ff39cb44;
+      animation: fadeIn .4s;
     }
-    #loginOverlay.hide {
-      display: none !important;
-      opacity: 0 !important;
-      pointer-events: none;
+    .close-btn {
+      position: absolute; right: 32px; top: 22px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2.0em;
+      cursor: pointer;
+      text-shadow: 0 0 15px #ff39cb99;
+      transition: color .15s;
     }
-    #loginBox {
-      background: #24293b;
-      padding: 2.3em 2.5em 2em 2.5em;
+    .close-btn:hover {
+      color: #ff39cb;
+    }
+    .player-container {
+      background: rgba(30,24,38,0.86);
       border-radius: 18px;
-      max-width: 350px;
+      box-shadow: 0 8px 60px #14121eaa inset;
+      padding: 9px 9px 14px 9px;
+      margin-bottom: 28px;
+      width: 98%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    iframe {
+      width: 900px; max-width: 96vw;
+      height: 480px; max-height: 50vh;
+      border: none;
+      border-radius: 12px;
+      background: #222;
+      box-shadow: 0 0 30px #ff39cb33;
+    }
+    /** Episode List style **/
+    .ep-list {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      margin: 30px 0 10px 0;
+      padding: 0 2px 4px 2px;
       width: 100%;
-      box-shadow: 0 0 54px #1ad7db44;
-      text-align: center;
+      justify-content: center;
     }
-    #loginBox h1 {
-      color: #3fa8ff;
-      letter-spacing: 1px;
-      margin-bottom: 0.65em;
-      font-weight: bold;
-    }
-    #loginBox input {
-      width: 90%;
-      margin-bottom: 1em;
-    }
-    #loginBox .primary-btn {
-      width: 100%;
-    }
-    #loginBox .error {
-      color: #ff767b;
-      margin-bottom: .7em;
+    .ep-list button {
+      background: #1b1826cc;
+      color: #fff;
+      border: 1.4px solid #ff39cbcc;
+      padding: 8px 20px;
+      border-radius: 9px;
+      margin: 0 3px;
+      transition: background 0.2s, box-shadow 0.2s;
+      cursor: pointer;
       font-size: 1em;
-      min-height: 1.5em;
+      box-shadow: 0 0 13px #ff39cb28;
     }
-    @media (max-width: 480px) {
-      #loginBox {
-        max-width: 98vw;
-        padding: 1.2em .7em 1.3em .7em;
-      }
-      #loginOverlay { font-size: .95em; }
+    .ep-list button.active,
+    .ep-list button:hover {
+      background: #ff39cbcc;
+      color: #fff;
+      box-shadow: 0 0 19px #ff39cb77;
+    }
+    .next-btn {
+      background: linear-gradient(90deg, #ff39cb 35%, #ff98dc 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 15px;
+      margin-top: 26px;
+      font-size: 1.12em;
+      filter: drop-shadow(0 0 14px #ff39cb99);
+      cursor: pointer;
+      transition: filter .15s;
+    }
+    .next-btn:hover {
+      filter: drop-shadow(0 0 33px #ff55eeba);
+    }
+    @media (max-width: 600px) {
+      header, main { padding: 7vw; }
+      .anime-card { width: 98vw; }
+      .popup-content { padding: 14px 0 16px 0;}
+      .player-container { padding: 3px 0;}
+      iframe { width: 100vw; min-width: 90vw; height: 33vw; min-height: 180px;}
     }
   </style>
 </head>
-<body class="dark-bg">
-
-  <!-- NAVBAR -->
+<body>
   <header>
-    <nav class="navbar">
-      <div class="logo">EPIC Seven - Card Battle</div>
-      <ul class="menu">
-        <li><button id="btnTeam" onclick="window.location.href='team.html'">จัดทีม</button></li>
-        <li><button id="btnStage" onclick="openStageMapPopup()">ผจญภัย</button></li>
-        <li><button id="btnInventory" onclick="openPopup('inventory')">คลังไอเท็ม</button></li>
-        <li><button id="btnQuest" onclick="openPopup('quest')">เควสต์</button></li>
-        <li><button id="btnShop" onclick="openPopup('shop')">ร้านค้า</button></li>
-        <li><button id="btnGacha" onclick="openPopup('gacha')">กาชา</button></li>
-        <li><button id="btnCharacter" onclick="openPopup('characterCollection')">คลังตัวละคร</button></li>
-        <li><button id="btnAnnouncement" onclick="openPopup('announcement')">ประกาศ</button></li>
-        <li><button id="btnChat" onclick="openPopup('chat')">แชท</button></li>
-        <li><button id="btnLogin" onclick="openPopup('login')">เข้าสู่ระบบ</button></li>
-      </ul>
-      <div class="profile">
-        <span id="playerName"></span>
-        <button id="btnLoginProfile" onclick="openPopup('login')">เข้าสู่ระบบ</button>
-      </div>
+    <div class="logo">ANIME PINK TECH</div>
+    <nav>
+      <a href="#anime-list">อนิเมะทั้งหมด</a>
     </nav>
   </header>
-
-  <!-- POPUP LAYER -->
-  <div id="popupLayer"></div>
-
-  <!-- MAIN BATTLE FIELD (will be opened by js/stage.js only) -->
-  <main id="mainBattlefield" class="hide">
-    <section class="battlefield">
-      <div class="card-row user"></div>
-      <div class="card-row monster"></div>
-      <div class="spd-bar-container"></div>
-    </section>
-    <section class="battle-controls">
-      <button id="btnStartAuto" class="primary-btn">Auto Battle</button>
-      <button id="btnBack" class="secondary-btn">กลับ</button>
+  <main>
+    <section id="anime-list">
+      <h2>รายการอนิเมะ</h2>
+      <div class="anime-grid" id="animeGrid"></div>
     </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer>
-    <small style="color: #aaa;">© 2024 - Epic Seven Fan Project Demo Frontend</small>
-    <div id="footerLangMenu" style="margin-top:8px;text-align:center;"></div>
-  </footer>
-
-  <!-- Login Overlay (show before login) -->
-  <div id="loginOverlay">
-    <div id="loginBox">
-      <h1>เข้าสู่ระบบ</h1>
-      <div class="error" id="loginError"></div>
-      <input id="login_user" type="text" placeholder="User ID..." autocomplete="username" autofocus maxlength="32" />
-      <input id="login_pass" type="password" placeholder="Password..." autocomplete="current-password" maxlength="32" />
-      <button class="primary-btn" onclick="doMainLogin()">ล็อกอิน</button>
-      <div style="margin-top:1.2em;color:#aaa;font-size:.94em;">© 2024 All Rights Reserved.</div>
+  <!-- Pop-up Player -->
+  <div class="popup-bg" id="popupBg">
+    <div class="popup-content" id="popupContent">
+      <button class="close-btn" id="closeBtn" title="ปิด">&#10005;</button>
+      <div class="player-container" id="playerContainer">
+        <!-- iframe ใส่ player ที่นี่ -->
+      </div>
+      <div class="ep-list" id="epList"></div>
+      <button class="next-btn" id="nextEpBtn" style="display:none;">ตอนถัดไป</button>
     </div>
   </div>
 
-  <!-- JS (all original scripts must still work!) -->
-  <script src="js/popupManager.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/reward.js"></script>
-  <script src="js/team.js"></script>
-  <script src="js/battle.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/animationEngine.js"></script>
-  <script src="js/effect.js"></script>
-  <script src="js/result.js"></script>
-  <script src="js/inventory.js"></script>
-  <script src="js/upgrade.js"></script>
-  <script src="js/rune.js"></script>
-  <script src="js/gacha.js"></script>
-  <script src="js/quest.js"></script>
-  <script src="js/stage.js"></script>
-  <script src="js/shop.js"></script>
-  <script src="js/announcement.js"></script>
-  <script src="js/redeem.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/characterCollection.js"></script>
-  <script src="js/passive.js"></script>
-  <script src="js/chat.js"></script>
-  <script src="js/gachaLog.js"></script>
-  <script src="js/energy.js"></script>
-  <script src="js/localization.js"></script>
-
   <script>
-  // ========== LOGIN OVERLAY SYSTEM ==========
-  // (minimal, after all scripts loaded to avoid busting old code)
-  async function checkLoginState() {
-    // Use same as auth.js logic
-    let uid = localStorage.getItem('user_id');
-    let uname = localStorage.getItem('user_name');
-    let isLoggedIn = !!uid && !!uname;
-    const overlay = document.getElementById('loginOverlay');
-    if (isLoggedIn) {
-      overlay.classList.add('hide');
-      document.body.style.overflow = '';
-      window.setPlayerName && setPlayerName(uname);
-      // Lock Profile/Logout event
-      let btn = document.getElementById('btnLoginProfile');
-      if (btn) {
-        btn.textContent = "ออกจากระบบ";
-        btn.onclick = doMainLogout;
+    const animeData = [
+      {
+        title: "Compass 2.0－Sentou Setsuri Kaiseki System",
+        cover: "https://i.ibb.co/n8gxX545/compass-2.webp",
+        episodes: [
+          { ep: 1, title: "ตอนที่ 1", src: "https://do7go.com/e/6nd0j8fnzgxu" },
+          { ep: 2, title: "ตอนที่ 2", src: "https://streamtape.com/e/23OlqJ1rxRuZYkM/" },
+          { ep: 3, title: "ตอนที่ 3", src: "https://streamtape.com/e/23OlqJ1rxRuZYkM/" }
+        ]
+      },
+      {
+        title: "Spy x Family",
+        cover: "https://i.imgur.com/Tv8nOqZ.jpg",
+        episodes: [
+          { ep: 1, title: "เริ่มภารกิจ", src: "https://streamtape.com/e/abc123" },
+          { ep: 2, title: "มอบหมายใหม่!", src: "https://streamtape.com/e/abc234" }
+        ]
       }
-      // ... update all UI as logged in (optional)
-    } else {
-      // Show overlay, lock scroll
-      overlay.classList.remove('hide');
-      document.body.style.overflow = 'hidden';
-      let btn = document.getElementById('btnLoginProfile');
-      if (btn) {
-        btn.textContent = "เข้าสู่ระบบ";
-        btn.onclick = openLoginPopup;
-      }
-    }
-  }
-  // On page load
-  document.addEventListener('DOMContentLoaded', checkLoginState);
-
-  // On manual logout
-  function doMainLogout() {
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('user_is_admin');
-    checkLoginState();
-    location.reload();
-  }
-
-  // Main Login Handler (Pure, does NOT call popupManager)
-  async function doMainLogin() {
-    const inputId = document.getElementById('login_user').value.trim();
-    const inputPw = document.getElementById('login_pass').value;
-    const errorEl = document.getElementById('loginError');
-    errorEl.innerHTML = '';
-    // Fetch user list
-    let users = [];
-    try {
-      users = await fetch('data/user.json').then(r => r.json());
-    } catch {}
-    const found = users.find(u => u.id === inputId && u.password === inputPw && u.enabled !== false);
-    if (found) {
-      localStorage.setItem('user_id', found.id);
-      localStorage.setItem('user_name', found.name);
-      localStorage.setItem('user_is_admin', found.role === "admin" ? "1" : "0");
-      errorEl.innerHTML = '';
-      checkLoginState();
-      // Reload to ensure all except overlay works fine
-      setTimeout(() => location.reload(), 220);
-    } else {
-      errorEl.innerHTML = 'ชื่อผู้ใช้หรือรหัสผ่านผิด!';
-    }
-  }
-
-  // Press Enter = login
-  document.addEventListener('DOMContentLoaded', () => {
-    const pass = document.getElementById('login_pass');
-    if (pass) {
-      pass.addEventListener('keypress', function(evt){
-        if (evt.key === "Enter") doMainLogin();
-      });
-    }
-    const user = document.getElementById('login_user');
-    if (user) {
-      user.addEventListener('keypress', function(evt){
-        if (evt.key === "Enter") doMainLogin();
-      });
-    }
-  });
-
-  // login popup (shortcut for menu)
-  function openLoginPopup() {
-    document.getElementById('loginOverlay').classList.remove('hide');
-    document.body.style.overflow = 'hidden';
-  }
-
-  // Guard All Actions: If not logged in, block nav/button AJAX/event except login overlay
-  document.addEventListener('DOMContentLoaded', () => {
-    // Intercept all major menu/buttons
-    function guard(event) {
-      // allow if overlay is HIDE (=already login)
-      if (!document.getElementById('loginOverlay').classList.contains('hide')) {
-        event.preventDefault();
-        event.stopPropagation();
-        openLoginPopup();
-        return false;
-      }
-      return true;
-    }
-    // All main menu buttons
-    const ids = [
-      'btnTeam','btnStage','btnInventory','btnQuest','btnShop','btnGacha','btnCharacter','btnAnnouncement','btnChat'
     ];
-    ids.forEach(id=>{
-      let btn = document.getElementById(id);
-      if (btn) btn.addEventListener('click', guard, true);
-    });
-    // Battle/autoplay/etc
-    let autoBtn = document.getElementById('btnStartAuto');
-    if (autoBtn) autoBtn.addEventListener('click', guard, true);
-  });
 
-  // Recheck always
-  window.checkLoginState = checkLoginState;
-  window.doMainLogin = doMainLogin;
-  window.doMainLogout = doMainLogout;
+    // Render Anime Cards
+    const animeGrid = document.getElementById('animeGrid');
+    animeData.forEach((anime, ai) => {
+      let card = document.createElement('div');
+      card.className = 'anime-card';
+      card.innerHTML = `
+        <img class="anime-thumb" src="${anime.cover}" alt="${anime.title}">
+        <div class="anime-info">
+          <div class="anime-title">${anime.title}</div>
+          <div class="anime-latest">${anime.episodes[anime.episodes.length-1].title}</div>
+          <button class="anime-watch-btn">ดู</button>
+        </div>
+      `;
+      card.querySelector('.anime-watch-btn').onclick = () => openPopup(ai, 0);
+      animeGrid.appendChild(card);
+    });
+
+    // Pop-up & Player logic
+    let currentAnime = 0, currentEp = 0;
+    const popupBg = document.getElementById('popupBg');
+    const playerContainer = document.getElementById('playerContainer');
+    const epList = document.getElementById('epList');
+    const nextEpBtn = document.getElementById('nextEpBtn');
+
+    function openPopup(ai, epi) {
+      currentAnime = ai; currentEp = epi;
+      updatePlayer();
+      popupBg.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePopup() {
+      popupBg.classList.remove('active');
+      setTimeout(() => {
+        playerContainer.innerHTML = "";
+        epList.innerHTML = "";
+        nextEpBtn.style.display = "none";
+      }, 300);
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('closeBtn').onclick = closePopup;
+    popupBg.onclick = e => { if(e.target === popupBg) closePopup(); };
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closePopup(); });
+
+    function updatePlayer() {
+      let anime = animeData[currentAnime];
+      let ep = anime.episodes[currentEp];
+      playerContainer.innerHTML = `<iframe src="${ep.src}" allowfullscreen></iframe>`;
+      epList.innerHTML = "";
+      anime.episodes.forEach((epObj, eidx) => {
+        let btn = document.createElement('button');
+        btn.innerText = `EP${epObj.ep}`;
+        btn.className = eidx === currentEp ? 'active' : '';
+        btn.onclick = () => { currentEp = eidx; updatePlayer(); };
+        epList.appendChild(btn);
+      });
+      // NEXT EPISODE LOGIC
+      if(currentEp < anime.episodes.length-1) {
+        nextEpBtn.style.display = "";
+        nextEpBtn.onclick = () => {
+          currentEp++;
+          updatePlayer();
+        };
+      }
+      else nextEpBtn.style.display = "none";
+    }
+
+    // Simulate auto-next (รับรู้จบคลิปด้วย JS - แต่ streamtape ไม่ให้ event จริง ถ้าต้อง auto จริง ใช้ iframe API/ตรวจจับ message หรือ ให้ user กด 'ถัดไป')
+    // ตัวอย่างนี้จะ auto-play เมื่อ user กดปุ่ม, ไม่ข้ามข้าม series อื่น
+
+    // Responsive: swipe episode
+    let touchstartX = 0, touchendX = 0;
+    epList.addEventListener('touchstart', e => {
+      touchstartX = e.touches[0].clientX;
+    });
+    epList.addEventListener('touchend', e => {
+      touchendX = e.changedTouches[0].clientX;
+      if (touchendX - touchstartX > 60 && currentEp > 0) { currentEp--; updatePlayer(); }
+      if (touchendX - touchstartX < -60 && currentEp < animeData[currentAnime].episodes.length-1) { currentEp++; updatePlayer(); }
+    });
+
   </script>
 </body>
 </html>
